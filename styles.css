@@ -41,6 +41,47 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
 }
+/* Hid menu Icon on desktop */
+/* Default navigation */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+}
+
+/* Hide menu toggle button on desktop */
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* hide menu by default on mobile */
+    flex-direction: column;
+    background: var(--primary-bg);
+    position: absolute;
+    top: 60px; /* below header */
+    right: 0;
+    width: 200px;
+    padding: 1rem;
+    border-radius: 0 0 0 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  .nav-links.active {
+    display: flex; /* show when toggled */
+  }
+
+  .menu-toggle {
+    display: block; /* show the icon only on mobile */
+  }
+}
+
 /* Navigation Styles */
 .navbar{
     position: fixed;
@@ -79,6 +120,7 @@ body {
     color: blueviolet;
     text-decoration: none;
 }
+/* I tried padding 1rem 0.5rem and the data was all pushed to the right that why I choose to go with 1rem 5rem */
 .nav-link {
     color: white;
     text-decoration: none;
@@ -86,8 +128,9 @@ body {
     font-weight: 700;
     position: relative;
     border-radius: 25px;
-    padding: 1rem 5rem;
-}
+    padding: 1rem 0.5rem; 
+} 
+
 .nav-link:hover{
     color: white;
     transform: translateY(-2px);
