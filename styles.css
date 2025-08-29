@@ -47,7 +47,7 @@ body {
     top: 0;
     width: 100%;
     z-index: 1000;
-    background-color: pink;
+    background-color: rgb(47, 210, 231);
     backdrop-filter: blur(10px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     
