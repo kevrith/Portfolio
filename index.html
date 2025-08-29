@@ -1,12 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Portfolio</title>
+    <meta name="description" content="My personal portfolio showcasing my projects and skills.">
+    <!-- Link Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Link Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-    <h1>Welcome to My Portfolio</h1>
-    <p>This is a simple portfolio page.</p> 
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#Home" class="logo">KJ</a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#home" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="#about" class="nav-link" data-page="about">About</a></li>
+                <li><a href="#projects" class="nav-link" data-page="projects">Projects</a></li>
+                <li><a href="#contact" class="nav-link" data-page="contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+    <!-- Home Page -->
+    <div class="page active" id="home">
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content fade-in">
+                    <h1 class="title">Kelvin Developer</h1>
+                    <p class="subtitle">&lt;Front-end Developer&gt;</p>
+                    <p class="hero-description">
+                        Crafting innovative digital solutions with expertise in front-end development,
+                        web design, software development, and mobile app creation.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="#projects" class="btn-primary" data-page="projects">
+                            <i class="fas fa-rocket"></i>
+                            View Projects
+                        </a>
+                        <a href="#contact" class="btn-secondary" data-page="contact">
+                            <i class="fas fa-envelope"></i>
+                            Get In Touch
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Skills Overview -->
+        <section class="section">
+            <div class="container">
+                <h2 class="title">Skills Overview</h2>
+                <div class="skill-grid">
+                    <div class="skill-card fade-in">
+                        <i class="fas fa-code skill-icon"></i>
+                        <h3 class="skill-title">Front-end Development</h3>
+                        <p class="skill-description">HTML, CSS, JavaScript</p>
+                    </div>
+                    <div class="skill-card fade-in">
+                        <i class="fas fa-laptop skill-icon"></i>
+                        <h3 class="skill-title">Web Design</h3>
+                        <p class="skill-description">User-centered design and responsive web interfaces</p>
+                    </div>
+                    <div class="skill-card fade-in">
+                        <i class="fas fa-cogs skill-icon"></i>
+                        <h3 class="skill-title">Software Development</h3>
+                        <p class="skill-description">Desktop applications and enterprise software solutions</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- About Page -->
+    <div class="page" id="about">
+        <section class="section">
+            <div class="container">
+                <h1 class="title">About Me</h1>
+                <div class="hero-content fade-in">
+                    <p class="about-page1">I'm Kelvin, a passionate front-end developer with a knack for creating
+                        beautiful and functional web experiences. With a background in web design and software
+                        development, I bring a holistic approach to building digital solutions.</p>
+                    <p class="about-page2">When I'm not coding, you can find me exploring the latest tech trends,
+                        contributing to open-source projects, or hiking in the great outdoors.</p>
+                    <div class="skills-grid">
+                        <div class="skill-card fade-in">
+                            <h3> Technical SKills</h3>
+                            <div class="project-tech">
+                                <span class="tech-item">HTML</span>
+                                <span class="tech-item">CSS</span>
+                                <span class="tech-item">JavaScript</span>
+                            </div>
+                        </div>
+                        <div class="skill-card">
+                            <h3>Soft Skills</h3>
+                            <div class="project-tech">
+                                <span class="tech-item">Communication</span>
+                                <span class="tech-item">Teamwork</span>
+                                <span class="tech-item">Problem-solving</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Projects Page -->
+    <div class="page" id="projects">
+        <section class="section">
+            <div class="container">
+                <h1 class="title">My Projects</h1>
+                <div class="projects-grid">
+                    <!-- Portfolio website -->
+                    <div class="project-card fade-in">
+                        <div class="project-image">
+                            <i class="fas fa-globe"></i>
+                            <div class="project content">
+                                <h3 class="project-title"> Portfolio Website</h3>
+                                <p class="project-description">A personal portfolio website to showcase my projects and
+                                    skills.</p>
+                                <div class="project-tech">
+                                    <span class="tech-item">HTML</span>
+                                    <span class="tech-item">CSS</span>
+                                    <span class="tech-item">JavaScript</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Contact Page -->
+    <div class="page" id="contact">
+        <section class="section">
+            <div class="container">
+                <h1 class="title">Contact Me</h1>
+                <div class="contact-grid">
+                    <!-- Contact Form> -->
+                    <div class="contact-form fade-in">
+                        <h3 class="contact-title">Send Me A Message</h3>
+                        <form id="contact-form" action="https://formspree.io/f/movnvora" method="POST">
+                            <div class="form-group">
+                                <label for="name" class="form-lable">Full Name</label>
+                                <input type="text" id="name" name="name" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="form-lable">Email Address</label>
+                                <input type="email" id="email" name="email" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message" class="form-lable">Message</label>
+                                <textarea id="message" name="message" class="form-textarea" rows="5" required
+                                    placeholder="Tell me about your project or how I can help you..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa.paper-plane"></i>Send Message</button>
+                        </form>
+                    </div>
+                    <!-- Contact Info -->
+                    <div class="contact-info fade-in">
+                        <h3 class="contact-title">Contact Information</h3>
+                        <div class="contact-item">
+                            <i class="fas fa-phone contact-icon"></i>
+                            <!-- using tel to tells the browser to open the default calling application.” -->
+                            <a href="tel:+254718864578" style="color: aliceblue;">+(254) 718 864 578
+                            </a>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope contact-icon"></i>
+                            <!-- using mailto to tells the browser to open the default email application and prepare a new message.” -->
+                            <a href="mailto:kevrith@gmail.com" style="color: aliceblue;"> kevrith@gmail.com
+                            </a>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt contact-icon"></i>
+                            <div>
+                                <strong>Location:</strong>
+                                <span>Nairobi, Kenya</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-clock contact-icon"></i>
+                                <strong>Availability:</strong>
+                                <span>Available For Freelance Projects</span>
+                            </div>
+                        </div>
+                        <!-- Digital Business Card -->
+                        <div class="business-card">
+                            <h4 class="contact-title1">Kelvin Developer</h4>
+                            <p class="contact-title3">Front-end Developer</p>
+                            <div class="cards-download">
+                                <button class="btn" onclick="donloadBusinessCard(pdf)">
+                                    <i class="fas fa-file-pdf"></i>PDF
+                                </button>
+                                <button class="btn" onclick="donloadBusinessCard(jpg)">
+                                    <i class="fas fa-image"></i>JPG
+                                </button>
+                                <button class="btn" onclick="donloadBusinessCard(vcard)">
+                                    <i class="fas fa-address-card"></i>VCard
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Social LInks -->
+                        <div class="social-links">
+                            <a href="https://github.com/kevrith" class="social-link" target="_blank" rel="noopener">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/kelvin-murithi-3525a894/" class="social-link"
+                                target="_blank" rel="noopener">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="https://kevrith.github.io/Portfolio" class="social-link" target="_blank"
+                                rel="noopener">
+                                <i class="fab fa-dribbble"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Kelvin Developer. All rights reserved.</p>
+        </div>
+    </footer>
+    <!-- Link to external JS file -->
+    <script src="scripts.js"></script>
+
 </body>
 </html>
