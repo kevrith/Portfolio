@@ -63,7 +63,7 @@ body {
   .nav-links {
     display: none; /* hide menu by default on mobile */
     flex-direction: column;
-    background: var(--primary-bg);
+    background: var(--primary-bg);  
     position: absolute;
     top: 60px; /* below header */
     right: 0;
@@ -78,7 +78,7 @@ body {
   }
 
   .menu-toggle {
-    display: block; /* show the icon only on mobile */
+    display: block; /* show the icon only on mobile. Still not showing will keep on debugging */
   }
 }
 
@@ -120,7 +120,9 @@ body {
     color: blueviolet;
     text-decoration: none;
 }
-/* I tried padding 1rem 0.5rem and the data was all pushed to the right that why I choose to go with 1rem 5rem */
+/* I tried padding 1rem 0.5rem and the data was all pushed to the right that 
+why I choose to go with 1rem 5rem (1rem 5rem does not work well with mobile version
+thats why I have maintained 1re 0.5rem padding*/
 .nav-link {
     color: white;
     text-decoration: none;

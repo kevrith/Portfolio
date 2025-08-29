@@ -1,5 +1,6 @@
 // JavaScript Functionality
-
+// Most of the Code I got them by googling which has enabled me to start learning how 
+// to have animations on website which I ninitaialy thought was possible by react
 // Global Variables
 let currentPage = 'home';
 const pages = ['home','about','projects','contact'];
@@ -40,6 +41,11 @@ function initializeNavigation() {
         });
     });
     
+    // Menu Icon
+    function toggleMenu() {
+  document.querySelector(".nav-links").classList.toggle("active");
+}
+
     // Handle browser back/forward
     window.addEventListener('popstate', function(e) {
         const page = e.state ? e.state.page : 'home';
