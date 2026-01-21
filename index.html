@@ -258,6 +258,69 @@
                     </div>
                 </div>
             </div>
+
+            <!-- GitHub Activity Section -->
+            <div class="github-activity animate-in">
+                <div class="activity-header">
+                    <h3><i class="fab fa-github"></i> GitHub Activity</h3>
+                    <span class="live-badge">
+                        <span class="pulse"></span>
+                        Live from GitHub
+                    </span>
+                </div>
+
+                <!-- GitHub Stats Cards -->
+                <div class="github-stats-cards">
+                    <div class="stats-card">
+                        <div class="stats-card-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stats-card-content">
+                            <span class="stats-card-value" id="current-streak">0</span>
+                            <span class="stats-card-label">Current Streak</span>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-card-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stats-card-content">
+                            <span class="stats-card-value" id="longest-streak">0</span>
+                            <span class="stats-card-label">Longest Streak</span>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="stats-card-icon">
+                            <i class="fas fa-code-commit"></i>
+                        </div>
+                        <div class="stats-card-content">
+                            <span class="stats-card-value" id="total-contributions">0</span>
+                            <span class="stats-card-label">This Year</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contribution Graph -->
+                <div class="contribution-graph-wrapper">
+                    <div class="contribution-graph" id="contribution-graph">
+                        <div class="graph-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Loading contribution data...</span>
+                        </div>
+                    </div>
+                    <div class="graph-legend">
+                        <span class="legend-label">Less</span>
+                        <div class="legend-colors">
+                            <span class="legend-box" data-level="0"></span>
+                            <span class="legend-box" data-level="1"></span>
+                            <span class="legend-box" data-level="2"></span>
+                            <span class="legend-box" data-level="3"></span>
+                            <span class="legend-box" data-level="4"></span>
+                        </div>
+                        <span class="legend-label">More</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

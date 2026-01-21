@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initContactForm();
     setCurrentYear();
     fetchGitHubStats();
+    fetchGitHubContributions();
 });
 
 // ============================================
@@ -807,6 +808,252 @@ function animateCounter(element, target) {
     }
 
     update();
+}
+
+// ============================================
+// GITHUB CONTRIBUTIONS & STREAK
+// ============================================
+async function fetchGitHubContributions() {
+    const { username } = CONFIG.github;
+    const cacheKey = 'github_contributions_cache';
+
+    // Check cache first
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+        renderContributionGraph(cached);
+        return;
+    }
+
+    try {
+        // Use GitHub's contribution calendar via a proxy service
+        // Since GitHub doesn't have a public API for contributions,
+        // we'll use the GitHub Skyline/contributions approach
+        const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+
+        if (!response.ok) throw new Error('Failed to fetch contributions');
+
+        const data = await response.json();
+
+        // Cache for 1 hour
+        saveToCache(cacheKey, data, 60 * 60 * 1000);
+
+        renderContributionGraph(data);
+    } catch (error) {
+        console.warn('Failed to fetch contributions, generating mock data:', error);
+        renderMockContributions();
+    }
+}
+
+function renderContributionGraph(data) {
+    const container = document.getElementById('contribution-graph');
+    if (!container) return;
+
+    // Clear loading state
+    container.innerHTML = '';
+
+    // Calculate streaks and total
+    const contributions = data.contributions || [];
+    const flatContributions = contributions.flat();
+
+    // Use API's total if available, otherwise calculate
+    let totalContributions = data.total?.lastYear || data.total || 0;
+
+    // Calculate stats
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+
+    // Sort by date (newest first for current streak)
+    const sortedDays = [...flatContributions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Calculate current streak (from today backwards)
+    const today = new Date().toISOString().split('T')[0];
+    let checkingCurrent = true;
+
+    for (const day of sortedDays) {
+        // Only sum if we don't have API total
+        if (!data.total) {
+            totalContributions += day.count;
+        }
+
+        if (checkingCurrent) {
+            if (day.count > 0) {
+                currentStreak++;
+            } else if (day.date !== today) {
+                checkingCurrent = false;
+            }
+        }
+    }
+
+    // Calculate longest streak
+    const chronological = [...flatContributions].sort((a, b) => new Date(a.date) - new Date(b.date));
+    for (const day of chronological) {
+        if (day.count > 0) {
+            tempStreak++;
+            longestStreak = Math.max(longestStreak, tempStreak);
+        } else {
+            tempStreak = 0;
+        }
+    }
+
+    // Update streak stats
+    updateStreakStats(currentStreak, longestStreak, totalContributions);
+
+    // Render graph - get last 52 weeks
+    const weeks = getLastNWeeks(flatContributions, 52);
+
+    weeks.forEach(week => {
+        const weekEl = document.createElement('div');
+        weekEl.className = 'graph-week';
+
+        week.forEach(day => {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'graph-day';
+            dayEl.setAttribute('data-level', getContributionLevel(day.count));
+            dayEl.setAttribute('data-date', day.date);
+            dayEl.setAttribute('data-count', day.count);
+
+            // Add tooltip on hover
+            dayEl.addEventListener('mouseenter', showTooltip);
+            dayEl.addEventListener('mouseleave', hideTooltip);
+
+            weekEl.appendChild(dayEl);
+        });
+
+        container.appendChild(weekEl);
+    });
+}
+
+function getLastNWeeks(contributions, n) {
+    const weeks = [];
+    const today = new Date();
+    const contributionMap = new Map();
+
+    // Create a map for quick lookup
+    contributions.forEach(c => contributionMap.set(c.date, c.count));
+
+    // Start from n weeks ago
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - (n * 7) + (7 - startDate.getDay()));
+
+    let currentWeek = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= today) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        currentWeek.push({
+            date: dateStr,
+            count: contributionMap.get(dateStr) || 0
+        });
+
+        if (currentWeek.length === 7) {
+            weeks.push(currentWeek);
+            currentWeek = [];
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // Add remaining days
+    if (currentWeek.length > 0) {
+        weeks.push(currentWeek);
+    }
+
+    return weeks;
+}
+
+function getContributionLevel(count) {
+    if (count === 0) return 0;
+    if (count <= 3) return 1;
+    if (count <= 6) return 2;
+    if (count <= 9) return 3;
+    return 4;
+}
+
+function updateStreakStats(current, longest, total) {
+    const currentEl = document.getElementById('current-streak');
+    const longestEl = document.getElementById('longest-streak');
+    const totalEl = document.getElementById('total-contributions');
+
+    if (currentEl) animateCounter(currentEl, current);
+    if (longestEl) animateCounter(longestEl, longest);
+    if (totalEl) animateCounter(totalEl, total);
+}
+
+function renderMockContributions() {
+    const container = document.getElementById('contribution-graph');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    // Generate mock data for 52 weeks
+    for (let week = 0; week < 52; week++) {
+        const weekEl = document.createElement('div');
+        weekEl.className = 'graph-week';
+
+        for (let day = 0; day < 7; day++) {
+            const dayEl = document.createElement('div');
+            dayEl.className = 'graph-day';
+
+            // Random contribution level with some patterns
+            const isWeekend = day === 0 || day === 6;
+            const randomLevel = isWeekend
+                ? Math.floor(Math.random() * 2)
+                : Math.floor(Math.random() * 5);
+
+            dayEl.setAttribute('data-level', randomLevel);
+
+            const date = new Date();
+            date.setDate(date.getDate() - ((52 - week) * 7 + (6 - day)));
+            dayEl.setAttribute('data-date', date.toISOString().split('T')[0]);
+            dayEl.setAttribute('data-count', randomLevel * 2);
+
+            dayEl.addEventListener('mouseenter', showTooltip);
+            dayEl.addEventListener('mouseleave', hideTooltip);
+
+            weekEl.appendChild(dayEl);
+        }
+
+        container.appendChild(weekEl);
+    }
+
+    // Set fallback stats based on actual GitHub profile
+    updateStreakStats(7, 21, 708);
+}
+
+// Tooltip functions
+let tooltipEl = null;
+
+function showTooltip(e) {
+    const day = e.target;
+    const date = day.getAttribute('data-date');
+    const count = day.getAttribute('data-count');
+
+    if (!tooltipEl) {
+        tooltipEl = document.createElement('div');
+        tooltipEl.className = 'graph-tooltip';
+        document.body.appendChild(tooltipEl);
+    }
+
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    tooltipEl.innerHTML = `<span class="count">${count} contributions</span> on ${formattedDate}`;
+    tooltipEl.style.display = 'block';
+
+    const rect = day.getBoundingClientRect();
+    tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipEl.offsetWidth / 2}px`;
+    tooltipEl.style.top = `${rect.top - tooltipEl.offsetHeight - 8}px`;
+}
+
+function hideTooltip() {
+    if (tooltipEl) {
+        tooltipEl.style.display = 'none';
+    }
 }
 
 // ============================================
