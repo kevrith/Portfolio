@@ -4,240 +4,726 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
-    <meta name="description" content="My personal portfolio showcasing my projects and skills.">
-    <!-- Link Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Link Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Link to external CSS file -->
+    <title>Kelvin Murithi Johnson | Full-Stack Developer & Python Architect</title>
+    <meta name="description" content="Full-Stack Developer & Python Architect & API Engineer. Building production-ready backend systems with Python, Flask, React, and PostgreSQL.">
+    <meta name="keywords" content="Full-Stack Developer, Python Architect, API Engineer, Flask, React, PostgreSQL, Backend Developer, Kenya">
+    <meta name="author" content="Kelvin Murithi Johnson">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Kelvin Murithi Johnson | Full-Stack Developer & Python Architect">
+    <meta property="og:description" content="Building production-ready backend systems. Available for hire.">
+    <meta property="og:type" content="website">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Devicons for tech stack -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <!-- Menu Item hideen on desktop visile on mobile -->
-     <button class="menu-toggle" onclick="toggleMenu()">
-    <i class="fas fa-bars"></i> <!-- hamburger icon from Font Awesome -->
-  </button>
+    <!-- Matrix Rain Canvas Background -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Cursor Glow Effect -->
+    <div class="cursor-glow" id="cursor-glow"></div>
+
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="loader-terminal">
+            <div class="terminal-header">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span class="terminal-title">system_init.sh</span>
+            </div>
+            <div class="terminal-body">
+                <div class="loader-text" id="loader-text"></div>
+                <div class="loader-cursor">_</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="#Home" class="logo">KJ</a>
+            <a href="#home" class="logo" data-page="home">
+                <span class="logo-bracket">&lt;</span>
+                <span class="logo-text">KMJ</span>
+                <span class="logo-bracket">/&gt;</span>
+            </a>
+
             <ul class="nav-menu" id="nav-menu">
-                <li><a href="#home" class="nav-link" data-page="home">Home</a></li>
-                <li><a href="#about" class="nav-link" data-page="about">About</a></li>
-                <li><a href="#projects" class="nav-link" data-page="projects">Projects</a></li>
-                <li><a href="#contact" class="nav-link" data-page="contact">Contact</a></li>
+                <li><a href="#home" class="nav-link active" data-page="home"><span class="nav-number">01.</span>Home</a></li>
+                <li><a href="#about" class="nav-link" data-page="about"><span class="nav-number">02.</span>About</a></li>
+                <li><a href="#skills" class="nav-link" data-page="skills"><span class="nav-number">03.</span>Skills</a></li>
+                <li><a href="#projects" class="nav-link" data-page="projects"><span class="nav-number">04.</span>Projects</a></li>
+                <li><a href="#contact" class="nav-link" data-page="contact"><span class="nav-number">05.</span>Contact</a></li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
+
+            <div class="nav-actions">
+                <a href="https://github.com/kevrith" target="_blank" class="nav-social" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/kelvin-murithi-3525a894/" target="_blank" class="nav-social" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span class="hamburger"></span>
+                </button>
+            </div>
         </div>
     </nav>
-    <!-- Home Page -->
-    <div class="page active" id="home">
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content fade-in">
-                    <h1 class="title">Developer Kelvin</h1>
-                    <p class="subtitle">&lt;Front-end Developer&gt;</p>
-                    <p class="hero-description">
-                        Crafting innovative digital solutions with expertise in front-end development,
-                        web design, software development, and mobile app creation.
-                    </p>
-                    <div class="cta-buttons">
-                        <a href="#projects" class="btn-primary" data-page="projects">
-                            <i class="fas fa-rocket"></i>
-                            View Projects
-                        </a>
-                        <a href="#contact" class="btn-secondary" data-page="contact">
-                            <i class="fas fa-envelope"></i>
-                            Get In Touch
-                        </a>
+
+    <!-- Home Section -->
+    <section class="page active" id="home">
+        <div class="hero">
+            <div class="hero-content">
+                <div class="hero-badge animate-in">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Available for Hire</span>
+                </div>
+
+                <p class="hero-greeting animate-in">
+                    <span class="code-comment">// Hello, World! I'm</span>
+                </p>
+
+                <h1 class="hero-name animate-in">
+                    <span class="text-gradient">Kelvin Murithi</span>
+                    <span class="hero-name-last">Johnson</span>
+                </h1>
+
+                <div class="hero-title animate-in">
+                    <span class="code-keyword">const</span>
+                    <span class="code-variable">role</span>
+                    <span class="code-operator">=</span>
+                    <span class="code-string">"<span id="typing-text"></span><span class="typing-cursor">|</span>"</span>
+                </div>
+
+                <p class="hero-description animate-in">
+                    I build <span class="highlight">production-ready backend systems</span> and
+                    <span class="highlight">scalable APIs</span>. Specializing in Python, Flask, and
+                    modern web technologies. Open to remote opportunities.
+                </p>
+
+                <div class="hero-stats animate-in">
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="150" data-stat="repos">0</span>
+                        <span class="stat-label">Repositories</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="3" data-stat="followers">0</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-icon"><i class="fas fa-rocket"></i></span>
+                        <span class="stat-label">Open to Work</span>
                     </div>
                 </div>
-            </div>
-        </section>
-        <!-- Skills Overview -->
-        <section class="section">
-            <div class="container">
-                <h2 class="title">Skills Overview</h2>
-                <div class="skill-grid">
-                    <div class="skill-card fade-in">
-                        <i class="fas fa-code skill-icon"></i>
-                        <h3 class="skill-title">Front-end Development</h3>
-                        <p class="skill-description">HTML, CSS, JavaScript</p>
-                    </div>
-                    <div class="skill-card fade-in">
-                        <i class="fas fa-laptop skill-icon"></i>
-                        <h3 class="skill-title">Web Design</h3>
-                        <p class="skill-description">User-centered design and responsive web interfaces</p>
-                    </div>
-                    <div class="skill-card fade-in">
-                        <i class="fas fa-cogs skill-icon"></i>
-                        <h3 class="skill-title">Software Development</h3>
-                        <p class="skill-description">Desktop applications and enterprise software solutions</p>
-                    </div>
+
+                <div class="hero-cta animate-in">
+                    <a href="#projects" class="btn btn-primary" data-page="projects">
+                        <span class="btn-text">View My Work</span>
+                        <span class="btn-icon"><i class="fas fa-arrow-right"></i></span>
+                    </a>
+                    <a href="#contact" class="btn btn-outline" data-page="contact">
+                        <span class="btn-text">Let's Connect</span>
+                        <span class="btn-icon"><i class="fas fa-paper-plane"></i></span>
+                    </a>
                 </div>
             </div>
-        </section>
-    </div>
-    <!-- About Page -->
-    <div class="page" id="about">
-        <section class="section">
-            <div class="container">
-                <h1 class="title">About Me</h1>
-                <div class="hero-content fade-in">
-                    <p class="about-page1">I'm Kelvin, a passionate front-end developer with a knack for creating
-                        beautiful and functional web experiences. With a background in web design and software
-                        development, I bring a holistic approach to building digital solutions.</p>
-                    <p class="about-page2">When I'm not coding, you can find me exploring the latest tech trends,
-                        contributing to open-source projects, or hiking in the great outdoors.</p>
-                    <div class="skills-grid">
-                        <div class="skill-card fade-in">
-                            <h3> Technical SKills</h3>
-                            <div class="project-tech">
-                                <span class="tech-item">HTML</span>
-                                <span class="tech-item">CSS</span>
-                                <span class="tech-item">JavaScript</span>
-                            </div>
+
+            <div class="hero-visual">
+                <div class="code-window animate-in">
+                    <div class="code-header">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                        <span class="code-filename">developer.py</span>
+                    </div>
+                    <pre class="code-content"><code><span class="code-keyword">class</span> <span class="code-class">Developer</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(<span class="code-variable">self</span>):
+        <span class="code-variable">self</span>.<span class="code-property">name</span> = <span class="code-string">"Kelvin Murithi Johnson"</span>
+        <span class="code-variable">self</span>.<span class="code-property">title</span> = <span class="code-string">"Full-Stack Developer"</span>
+        <span class="code-variable">self</span>.<span class="code-property">location</span> = <span class="code-string">"Nairobi, Kenya"</span>
+        <span class="code-variable">self</span>.<span class="code-property">skills</span> = [
+            <span class="code-string">"Python"</span>, <span class="code-string">"Flask"</span>,
+            <span class="code-string">"React"</span>, <span class="code-string">"TypeScript"</span>,
+            <span class="code-string">"PostgreSQL"</span>, <span class="code-string">"REST APIs"</span>
+        ]
+        <span class="code-variable">self</span>.<span class="code-property">available</span> = <span class="code-boolean">True</span>
+
+<span class="code-variable">kelvin</span> = <span class="code-class">Developer</span>()</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <span class="scroll-text">Scroll to explore</span>
+            <div class="scroll-arrow">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="page" id="about">
+        <div class="section-container">
+            <h2 class="section-title animate-in">
+                <span class="section-number">02.</span>
+                <span class="title-text">About Me</span>
+                <span class="title-line"></span>
+            </h2>
+
+            <div class="about-grid">
+                <div class="about-content animate-in">
+                    <div class="about-terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">about_kelvin.md</span>
                         </div>
-                        <div class="skill-card">
-                            <h3>Soft Skills</h3>
-                            <div class="project-tech">
-                                <span class="tech-item">Communication</span>
-                                <span class="tech-item">Teamwork</span>
-                                <span class="tech-item">Problem-solving</span>
+                        <div class="terminal-body">
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> cat about_me.txt
+                            </p>
+                            <div class="terminal-output">
+                                <p>I'm a <span class="highlight">Full-Stack Developer</span> and <span class="highlight">Python Architect</span>
+                                focused on building production-ready backend systems.</p>
+
+                                <p>With expertise in <span class="highlight">API Engineering</span>, I create scalable,
+                                maintainable solutions using modern technologies and best practices like MVC patterns
+                                and RESTful services.</p>
+
+                                <p>Currently learning <span class="highlight">System Design</span> and <span class="highlight">Microservices Architecture</span>
+                                to build even more robust and scalable applications.</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    <!-- Projects Page -->
-    <div class="page" id="projects">
-        <section class="section">
-            <div class="container">
-                <h1 class="title">My Projects</h1>
-                <div class="projects-grid">
-                    <!-- Portfolio website -->
-                    <div class="project-card fade-in">
-                        <div class="project-image">
-                            <i class="fas fa-globe"></i>
-                            <div class="project content">
-                                <h3 class="project-title"> Portfolio Website</h3>
-                                <p class="project-description">A personal portfolio website to showcase my projects and
-                                    skills.</p>
-                                <div class="project-tech">
-                                    <span class="tech-item">HTML</span>
-                                    <span class="tech-item">CSS</span>
-                                    <span class="tech-item">JavaScript</span>
+
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> curl api.github.com/users/kevrith | jq '.achievements'
+                            </p>
+                            <div class="achievements-list" id="github-achievements">
+                                <!-- Fallback content, replaced by JS -->
+                                <div class="achievement-item">
+                                    <i class="fas fa-code-pull-request"></i>
+                                    <span>Pull Shark (x2)</span>
+                                </div>
+                                <div class="achievement-item">
+                                    <i class="fas fa-bolt"></i>
+                                    <span>YOLO</span>
+                                </div>
+                                <div class="achievement-item">
+                                    <i class="fas fa-crosshairs"></i>
+                                    <span>Quickdraw</span>
+                                </div>
+                                <div class="achievement-item loading-indicator">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <span>Fetching from GitHub...</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </div>
-    <!-- Contact Page -->
-    <div class="page" id="contact">
-        <section class="section">
-            <div class="container">
-                <h1 class="title">Contact Me</h1>
-                <div class="contact-grid">
-                    <!-- Contact Form> -->
-                    <div class="contact-form fade-in">
-                        <h3 class="contact-title">Send Me A Message</h3>
-                        <form id="contact-form" action="https://formspree.io/f/movnvora" method="POST">
-                            <div class="form-group">
-                                <label for="name" class="form-lable">Full Name</label>
-                                <input type="text" id="name" name="name" class="form-input" required>
+
+                <div class="about-image animate-in">
+                    <div class="image-frame">
+                        <div class="image-placeholder">
+                            <div class="avatar-code">
+                                <span class="bracket">{</span>
+                                <div class="avatar-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <span class="bracket">}</span>
                             </div>
-                            <div class="form-group">
-                                <label for="email" class="form-lable">Email Address</label>
-                                <input type="email" id="email" name="email" class="form-input" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="message" class="form-lable">Message</label>
-                                <textarea id="message" name="message" class="form-textarea" rows="5" required
-                                    placeholder="Tell me about your project or how I can help you..."></textarea>
-                            </div>
-                            <button type="submit" class="btn-primary">
-                                <i class="fas fa.paper-plane"></i>Send Message</button>
-                        </form>
+                        </div>
+                        <div class="image-border"></div>
                     </div>
-                    <!-- Contact Info -->
-                    <div class="contact-info fade-in">
-                        <h3 class="contact-title">Contact Information</h3>
-                        <div class="contact-item">
-                            <i class="fas fa-phone contact-icon"></i>
-                            <!-- using tel to tells the browser to open the default calling application.” -->
-                            <a href="tel:+254718864578" style="color: aliceblue;">+(254) 718 864 578
-                            </a>
+
+                    <div class="floating-badges">
+                        <div class="badge badge-react"><i class="devicon-python-plain"></i></div>
+                        <div class="badge badge-typescript"><i class="devicon-flask-original"></i></div>
+                        <div class="badge badge-azure"><i class="devicon-react-original"></i></div>
+                        <div class="badge badge-docker"><i class="devicon-postgresql-plain"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="page" id="skills">
+        <div class="section-container">
+            <h2 class="section-title animate-in">
+                <span class="section-number">03.</span>
+                <span class="title-text">Tech Stack</span>
+                <span class="title-line"></span>
+            </h2>
+
+            <div class="skills-wrapper">
+                <!-- Languages -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-code"></i>
+                        <h3>Languages</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="Python">
+                            <i class="devicon-python-plain colored"></i>
+                            <span>Python</span>
+                            <div class="skill-level" data-level="95"></div>
                         </div>
-                        <div class="contact-item">
-                            <i class="fas fa-envelope contact-icon"></i>
-                            <!-- using mailto to tells the browser to open the default email application and prepare a new message.” -->
-                            <a href="mailto:kevrith@gmail.com" style="color: aliceblue;"> kevrith@gmail.com
-                            </a>
+                        <div class="skill-item" data-skill="TypeScript">
+                            <i class="devicon-typescript-plain colored"></i>
+                            <span>TypeScript</span>
+                            <div class="skill-level" data-level="85"></div>
                         </div>
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt contact-icon"></i>
-                            <div>
-                                <strong>Location:</strong>
-                                <span>Nairobi, Kenya</span>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fas fa-clock contact-icon"></i>
-                                <strong>Availability:</strong>
-                                <span>Available For Freelance Projects</span>
-                            </div>
+                        <div class="skill-item" data-skill="JavaScript">
+                            <i class="devicon-javascript-plain colored"></i>
+                            <span>JavaScript</span>
+                            <div class="skill-level" data-level="90"></div>
                         </div>
-                        <!-- Digital Business Card -->
-                        <div class="business-card">
-                            <h4 class="contact-title1">Kelvin Developer</h4>
-                            <p class="contact-title3">Front-end Developer</p>
-                            <div class="cards-download">
-                                <button class="btn" onclick="donloadBusinessCard(pdf)">
-                                    <i class="fas fa-file-pdf"></i>PDF
-                                </button>
-                                <button class="btn" onclick="donloadBusinessCard(jpg)">
-                                    <i class="fas fa-image"></i>JPG
-                                </button>
-                                <button class="btn" onclick="donloadBusinessCard(vcard)">
-                                    <i class="fas fa-address-card"></i>VCard
-                                </button>
-                            </div>
+                        <div class="skill-item" data-skill="HTML5">
+                            <i class="devicon-html5-plain colored"></i>
+                            <span>HTML5</span>
+                            <div class="skill-level" data-level="95"></div>
                         </div>
-                        <!-- Social LInks -->
-                        <div class="social-links">
-                            <a href="https://github.com/kevrith" class="social-link" target="_blank" rel="noopener">
-                                <i class="fab fa-github"></i>
-                            </a>
-                            <a href="https://www.linkedin.com/in/kelvin-murithi-3525a894/" class="social-link"
-                                target="_blank" rel="noopener">
-                                <i class="fab fa-linkedin"></i>
-                            </a>
-                            <a href="https://kevrith.github.io/Portfolio" class="social-link" target="_blank"
-                                rel="noopener">
-                                <i class="fab fa-dribbble"></i>
-                            </a>
+                        <div class="skill-item" data-skill="CSS3">
+                            <i class="devicon-css3-plain colored"></i>
+                            <span>CSS3</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backend -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-server"></i>
+                        <h3>Backend & APIs</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="Flask">
+                            <i class="devicon-flask-original"></i>
+                            <span>Flask</span>
+                            <div class="skill-level" data-level="95"></div>
+                        </div>
+                        <div class="skill-item" data-skill="SQLAlchemy">
+                            <i class="devicon-sqlalchemy-plain"></i>
+                            <span>SQLAlchemy</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="REST API">
+                            <i class="fas fa-plug"></i>
+                            <span>REST APIs</span>
+                            <div class="skill-level" data-level="95"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Postman">
+                            <i class="devicon-postman-plain colored"></i>
+                            <span>Postman</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="MVC">
+                            <i class="fas fa-cubes"></i>
+                            <span>MVC Pattern</span>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Frontend -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-laptop-code"></i>
+                        <h3>Frontend</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="React">
+                            <i class="devicon-react-original colored"></i>
+                            <span>React</span>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Formik">
+                            <i class="devicon-react-original colored"></i>
+                            <span>Formik</span>
+                            <div class="skill-level" data-level="80"></div>
+                        </div>
+                        <div class="skill-item" data-skill="HTML5">
+                            <i class="devicon-html5-plain colored"></i>
+                            <span>HTML5</span>
+                            <div class="skill-level" data-level="95"></div>
+                        </div>
+                        <div class="skill-item" data-skill="CSS3">
+                            <i class="devicon-css3-plain colored"></i>
+                            <span>CSS3</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-database"></i>
+                        <h3>Database</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="PostgreSQL">
+                            <i class="devicon-postgresql-plain colored"></i>
+                            <span>PostgreSQL</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="SQLite">
+                            <i class="devicon-sqlite-plain"></i>
+                            <span>SQLite</span>
+                            <div class="skill-level" data-level="85"></div>
+                        </div>
+                        <div class="skill-item" data-skill="SQLAlchemy ORM">
+                            <i class="devicon-sqlalchemy-plain"></i>
+                            <span>SQLAlchemy ORM</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools & Platforms -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-tools"></i>
+                        <h3>Tools & Platforms</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="Git">
+                            <i class="devicon-git-plain colored"></i>
+                            <span>Git</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="GitHub">
+                            <i class="devicon-github-original"></i>
+                            <span>GitHub</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="VS Code">
+                            <i class="devicon-vscode-plain colored"></i>
+                            <span>VS Code</span>
+                            <div class="skill-level" data-level="95"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Postman">
+                            <i class="devicon-postman-plain colored"></i>
+                            <span>Postman</span>
+                            <div class="skill-level" data-level="90"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Beautiful Soup">
+                            <i class="devicon-python-plain colored"></i>
+                            <span>Beautiful Soup</span>
+                            <div class="skill-level" data-level="80"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currently Learning -->
+                <div class="skill-category animate-in">
+                    <div class="category-header">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Currently Learning</h3>
+                    </div>
+                    <div class="skill-grid">
+                        <div class="skill-item" data-skill="System Design">
+                            <i class="fas fa-project-diagram"></i>
+                            <span>System Design</span>
+                            <div class="skill-level" data-level="60"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Microservices">
+                            <i class="fas fa-network-wired"></i>
+                            <span>Microservices</span>
+                            <div class="skill-level" data-level="55"></div>
+                        </div>
+                        <div class="skill-item" data-skill="Cloud Architecture">
+                            <i class="fas fa-cloud"></i>
+                            <span>Cloud Architecture</span>
+                            <div class="skill-level" data-level="50"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="page" id="projects">
+        <div class="section-container">
+            <h2 class="section-title animate-in">
+                <span class="section-number">04.</span>
+                <span class="title-text">Featured Projects</span>
+                <span class="title-line"></span>
+            </h2>
+
+            <div class="projects-grid">
+                <!-- Project 1 -->
+                <article class="project-card featured animate-in">
+                    <div class="project-content">
+                        <p class="project-overline">Featured Project</p>
+                        <h3 class="project-title">Premier-Hotel</h3>
+                        <div class="project-description">
+                            <p>A comprehensive hotel management system built with Python and Flask.
+                            Features include room booking, guest management, billing, and administrative dashboard
+                            with a clean, responsive interface.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Python</li>
+                            <li>Flask</li>
+                            <li>SQLAlchemy</li>
+                            <li>PostgreSQL</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/kevrith/Premier-Hotel" target="_blank" aria-label="GitHub Repository">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-image">
+                        <div class="project-window">
+                            <div class="window-header">
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                            </div>
+                            <div class="window-content terminal-style">
+                                <p><span class="prompt">$</span> flask run</p>
+                                <p class="output">* Running on http://127.0.0.1:5000</p>
+                                <p class="output success">* Hotel Management System Active</p>
+                                <p class="output dim">* Debug mode: on</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Project 2 -->
+                <article class="project-card animate-in">
+                    <div class="project-content">
+                        <p class="project-overline">Systems Project</p>
+                        <h3 class="project-title">Kastra-Systems</h3>
+                        <div class="project-description">
+                            <p>A robust systems management application showcasing clean architecture principles
+                            and best practices in Python development. Built with scalability and maintainability in mind.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>Python</li>
+                            <li>Flask</li>
+                            <li>REST API</li>
+                            <li>MVC Pattern</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/kevrith/Kastra-Systems" target="_blank" aria-label="GitHub Repository">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-image">
+                        <div class="project-window">
+                            <div class="window-header">
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                            </div>
+                            <div class="window-content code-style">
+                                <p><span class="yaml-key">from</span> flask <span class="yaml-key">import</span> Flask</p>
+                                <p><span class="yaml-key">from</span> models <span class="yaml-key">import</span> db</p>
+                                <p></p>
+                                <p>app = Flask(__name__)</p>
+                                <p>db.init_app(app)</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Project 3 -->
+                <article class="project-card animate-in">
+                    <div class="project-content">
+                        <p class="project-overline">Personal Project</p>
+                        <h3 class="project-title">Portfolio</h3>
+                        <div class="project-description">
+                            <p>A modern, futuristic portfolio website with matrix rain effects, terminal-style UI,
+                            and smooth animations. Built with vanilla JavaScript and CSS to showcase frontend skills.</p>
+                        </div>
+                        <ul class="project-tech-list">
+                            <li>HTML5</li>
+                            <li>CSS3</li>
+                            <li>JavaScript</li>
+                            <li>Canvas API</li>
+                        </ul>
+                        <div class="project-links">
+                            <a href="https://github.com/kevrith/Portfolio" target="_blank" aria-label="GitHub Repository">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="project-image">
+                        <div class="project-window">
+                            <div class="window-header">
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                                <span class="window-dot"></span>
+                            </div>
+                            <div class="window-content terminal-style">
+                                <p><span class="prompt">&lt;</span><span class="output success">Portfolio</span><span class="prompt">/&gt;</span></p>
+                                <p class="output">Matrix Effects: ON</p>
+                                <p class="output">Terminal UI: Active</p>
+                                <p class="output success">Ready to impress!</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="projects-cta animate-in">
+                <a href="https://github.com/kevrith?tab=repositories" target="_blank" class="btn btn-outline">
+                    <span class="btn-text">View All 150 Repositories</span>
+                    <span class="btn-icon"><i class="fab fa-github"></i></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="page" id="contact">
+        <div class="section-container">
+            <h2 class="section-title animate-in">
+                <span class="section-number">05.</span>
+                <span class="title-text">Get In Touch</span>
+                <span class="title-line"></span>
+            </h2>
+
+            <div class="contact-wrapper">
+                <div class="contact-content animate-in">
+                    <div class="contact-terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">contact.sh</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> echo $COLLABORATION_STATUS
+                            </p>
+                            <p class="terminal-output highlight">AVAILABLE_FOR_HIRE</p>
+
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> cat contact_info.json
+                            </p>
+                            <div class="contact-json">
+                                <p>{</p>
+                                <p>  <span class="json-key">"email"</span>: <a href="mailto:kevrith@gmail.com" class="json-value">"kevrith@gmail.com"</a>,</p>
+                                <p>  <span class="json-key">"phone"</span>: <a href="tel:+254718864578" class="json-value">"+254 718 864 578"</a>,</p>
+                                <p>  <span class="json-key">"location"</span>: <span class="json-string">"Nairobi, Kenya"</span>,</p>
+                                <p>  <span class="json-key">"github"</span>: <a href="https://github.com/kevrith" target="_blank" class="json-value">"@kevrith"</a>,</p>
+                                <p>  <span class="json-key">"linkedin"</span>: <a href="https://www.linkedin.com/in/kelvin-murithi-3525a894/" target="_blank" class="json-value">"/in/kelvin-murithi"</a>,</p>
+                                <p>  <span class="json-key">"remote"</span>: <span class="code-boolean">true</span></p>
+                                <p>}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="contact-description">
+                        Looking for a backend developer who can build production-ready systems?
+                        I'm available for hire and open to remote opportunities. Let's discuss
+                        how I can help bring your project to life!
+                    </p>
+
+                    <a href="mailto:kevrith@gmail.com" class="btn btn-primary btn-large">
+                        <span class="btn-text">Send Me a Message</span>
+                        <span class="btn-icon"><i class="fas fa-paper-plane"></i></span>
+                    </a>
+                </div>
+
+                <div class="contact-form-wrapper animate-in">
+                    <form id="contact-form" class="contact-form" action="https://formspree.io/f/movnvora" method="POST">
+                        <div class="form-group">
+                            <label for="name" class="form-label">
+                                <span class="label-icon"><i class="fas fa-user"></i></span>
+                                Name
+                            </label>
+                            <input type="text" id="name" name="name" class="form-input" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                <span class="label-icon"><i class="fas fa-envelope"></i></span>
+                                Email
+                            </label>
+                            <input type="email" id="email" name="email" class="form-input" required placeholder="john@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject" class="form-label">
+                                <span class="label-icon"><i class="fas fa-tag"></i></span>
+                                Subject
+                            </label>
+                            <select id="subject" name="subject" class="form-input form-select">
+                                <option value="job">Job Opportunity</option>
+                                <option value="collaboration">Project Collaboration</option>
+                                <option value="freelance">Freelance Work</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">
+                                <span class="label-icon"><i class="fas fa-comment"></i></span>
+                                Message
+                            </label>
+                            <textarea id="message" name="message" class="form-input form-textarea" rows="5" required
+                                placeholder="Tell me about your project or opportunity..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <span class="btn-text">Send Message</span>
+                            <span class="btn-icon"><i class="fas fa-paper-plane"></i></span>
+                            <span class="btn-loading"><i class="fas fa-spinner fa-spin"></i></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 Developer Kelvin. All rights reserved.</p>
+        <div class="footer-content">
+            <div class="footer-social">
+                <a href="https://github.com/kevrith" target="_blank" class="social-link" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/kelvin-murithi-3525a894/" target="_blank" class="social-link" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+
+            <p class="footer-text">
+                <span class="code-comment">// Designed & Built by</span>
+                <span class="footer-name">Kelvin Murithi Johnson</span>
+            </p>
+
+            <p class="footer-copyright">
+                &copy; <span id="current-year">2025</span> | Made with
+                <span class="heart"><i class="fas fa-heart"></i></span> and
+                <span class="coffee"><i class="fas fa-coffee"></i></span>
+            </p>
         </div>
     </footer>
-    <!-- Link to external JS file -->
-    <script src="scripts.js"></script>
 
+    <script src="scripts.js"></script>
 </body>
+
 </html>

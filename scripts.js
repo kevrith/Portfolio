@@ -1,72 +1,247 @@
-// JavaScript Functionality
-// Most of the Code I got them by googling which has enabled me to start learning how 
-// to have animations on website which I ninitaialy thought was possible by react
-// Global Variables
+/**
+ * Kelvin Murithi Johnson - Portfolio
+ * Interactive JavaScript with Matrix Effects & Animations
+ */
+
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    github: {
+        username: 'kevrith',
+        cacheKey: 'github_stats_cache',
+        cacheDuration: 30 * 60 * 1000 // 30 minutes
+    },
+    typing: {
+        roles: [
+            'Full-Stack Developer',
+            'Python Architect',
+            'API Engineer',
+            'Backend Developer',
+            'Flask Specialist',
+            'React Developer'
+        ],
+        typeSpeed: 80,
+        deleteSpeed: 50,
+        pauseDuration: 2000
+    },
+    loader: {
+        messages: [
+            '> Initializing system...',
+            '> Loading dependencies...',
+            '> Starting Flask server...',
+            '> Connecting to PostgreSQL...',
+            '> Fetching GitHub stats...',
+            '> Building UI components...',
+            '> System ready!'
+        ],
+        messageDelay: 300
+    },
+    matrix: {
+        fontSize: 14,
+        characters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*(){}[]|<>~`',
+        speed: 50
+    }
+};
+
+// ============================================
+// DOM ELEMENTS
+// ============================================
+const elements = {
+    loader: document.getElementById('loader'),
+    loaderText: document.getElementById('loader-text'),
+    navbar: document.getElementById('navbar'),
+    navMenu: document.getElementById('nav-menu'),
+    mobileMenuToggle: document.getElementById('mobile-menu-toggle'),
+    matrixCanvas: document.getElementById('matrix-canvas'),
+    cursorGlow: document.getElementById('cursor-glow'),
+    typingText: document.getElementById('typing-text'),
+    currentYear: document.getElementById('current-year'),
+    contactForm: document.getElementById('contact-form')
+};
+
+// ============================================
+// STATE
+// ============================================
 let currentPage = 'home';
-const pages = ['home','about','projects','contact'];
+const pages = ['home', 'about', 'skills', 'projects', 'contact'];
 
-// DOM Elements
-const loader = document.getElementById('loader');
-const navbar = document.getElementById('navbar');
-const navLinks = document.querySelectorAll('.nav-link');
-const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-const navMenu = document.getElementById('nav-menu');
-
-// Initialize Application
-document.addEventListener('DOMContentLoaded', function() {
-
-    // Initialize navigation
-    initializeNavigation();
-    
-    // Initialize animations
-    initializeAnimations();
-    
-    // Add scroll effects
-    initializeScrollEffects();
-    
-    // Initialize mobile menu
-    initializeMobileMenu();
-    
-    // Create particles effect
-    createParticles();
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    initLoader();
+    initMatrixRain();
+    initCursorGlow();
+    initNavigation();
+    initMobileMenu();
+    initScrollEffects();
+    initAnimations();
+    initTypingEffect();
+    initSkillLevels();
+    initCounterAnimation();
+    initContactForm();
+    setCurrentYear();
+    fetchGitHubStats();
 });
-// Navigation System
-function initializeNavigation() {
-    // Add click events to navigation links
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const targetPage = this.getAttribute('data-page');
-            navigateToPage(targetPage);
-        });
-    });
-    
-    // Menu Icon
-    function toggleMenu() {
-  document.querySelector(".nav-links").classList.toggle("active");
+
+// ============================================
+// LOADER
+// ============================================
+function initLoader() {
+    let messageIndex = 0;
+    let currentText = '';
+
+    function typeMessage() {
+        if (messageIndex < CONFIG.loader.messages.length) {
+            const message = CONFIG.loader.messages[messageIndex];
+            currentText += message + '\n';
+            elements.loaderText.textContent = currentText;
+
+            messageIndex++;
+            setTimeout(typeMessage, CONFIG.loader.messageDelay);
+        } else {
+            setTimeout(hideLoader, 500);
+        }
+    }
+
+    typeMessage();
 }
 
+function hideLoader() {
+    elements.loader.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+
+    // Trigger initial animations
+    setTimeout(() => {
+        document.querySelectorAll('#home .animate-in').forEach((el, index) => {
+            setTimeout(() => el.classList.add('visible'), index * 100);
+        });
+    }, 300);
+}
+
+// ============================================
+// MATRIX RAIN EFFECT
+// ============================================
+function initMatrixRain() {
+    const canvas = elements.matrixCanvas;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let columns, drops;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        columns = Math.floor(canvas.width / CONFIG.matrix.fontSize);
+        drops = Array(columns).fill(1);
+    }
+
+    function draw() {
+        // Semi-transparent black to create fade effect
+        ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Green text
+        ctx.fillStyle = '#00ff88';
+        ctx.font = `${CONFIG.matrix.fontSize}px JetBrains Mono, monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = CONFIG.matrix.characters[Math.floor(Math.random() * CONFIG.matrix.characters.length)];
+            const x = i * CONFIG.matrix.fontSize;
+            const y = drops[i] * CONFIG.matrix.fontSize;
+
+            ctx.fillText(char, x, y);
+
+            // Reset drop randomly after reaching bottom
+            if (y > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    setInterval(draw, CONFIG.matrix.speed);
+}
+
+// ============================================
+// CURSOR GLOW EFFECT
+// ============================================
+function initCursorGlow() {
+    const glow = elements.cursorGlow;
+    if (!glow) return;
+
+    let mouseX = 0, mouseY = 0;
+    let glowX = 0, glowY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+    });
+
+    function updateGlow() {
+        // Smooth follow effect
+        glowX += (mouseX - glowX) * 0.1;
+        glowY += (mouseY - glowY) * 0.1;
+
+        glow.style.left = `${glowX}px`;
+        glow.style.top = `${glowY}px`;
+
+        requestAnimationFrame(updateGlow);
+    }
+
+    updateGlow();
+
+    // Hide on mobile
+    if ('ontouchstart' in window) {
+        glow.style.display = 'none';
+    }
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function initNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link, [data-page]');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetPage = link.getAttribute('data-page');
+            if (targetPage && pages.includes(targetPage)) {
+                e.preventDefault();
+                navigateToPage(targetPage);
+            }
+        });
+    });
+
     // Handle browser back/forward
-    window.addEventListener('popstate', function(e) {
-        const page = e.state ? e.state.page : 'home';
+    window.addEventListener('popstate', (e) => {
+        const page = e.state?.page || 'home';
         showPage(page);
         updateActiveNav(page);
     });
-        
+
     // Set initial state
     history.replaceState({ page: 'home' }, '', '#home');
 }
+
 function navigateToPage(targetPage) {
-    if (pages.includes(targetPage) && targetPage !== currentPage) {
-        showPage(targetPage);
-        updateActiveNav(targetPage);
-        history.pushState({ page: targetPage }, '', `#${targetPage}`);
-        currentPage = targetPage;
-        
-        // Close mobile menu if open
-        navMenu.classList.remove('active');
-        mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
-    }
+    if (targetPage === currentPage) return;
+
+    showPage(targetPage);
+    updateActiveNav(targetPage);
+    history.pushState({ page: targetPage }, '', `#${targetPage}`);
+    currentPage = targetPage;
+
+    // Close mobile menu
+    elements.navMenu?.classList.remove('active');
+    elements.mobileMenuToggle?.classList.remove('active');
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function showPage(pageId) {
@@ -74,228 +249,306 @@ function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
-    
+
     // Show target page
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
         targetPage.classList.add('active');
-        
-        // Trigger fade-in animations
-        const fadeElements = targetPage.querySelectorAll('.fade-in');
-        fadeElements.forEach((el, index) => {
-            setTimeout(() => {
-                el.style.animationDelay = `${index * 0.1}s`;
-                el.classList.add('fade-in');
-            }, 100);
-        });
+
+        // Trigger animations
+        setTimeout(() => {
+            targetPage.querySelectorAll('.animate-in').forEach((el, index) => {
+                setTimeout(() => el.classList.add('visible'), index * 100);
+            });
+        }, 100);
+
+        // Animate skill levels if on skills page
+        if (pageId === 'skills') {
+            animateSkillLevels();
+        }
+
+        // Animate counters if on home page
+        if (pageId === 'home') {
+            animateCounters();
+        }
     }
 }
 
 function updateActiveNav(pageId) {
-    navLinks.forEach(link => {
+    document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('data-page') === pageId) {
             link.classList.add('active');
         }
     });
 }
-// Mobile Menu Toggle
-function initializeMobileMenu() {
-    mobileMenuToggle.addEventListener('click', function() {
-        navMenu.classList.toggle('active');
-        if (navMenu.classList.contains('active')) {
-            mobileMenuToggle.innerHTML = '<i class="fas fa-times"></i>';
-        } else {
-            mobileMenuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+
+// ============================================
+// MOBILE MENU
+// ============================================
+function initMobileMenu() {
+    const toggle = elements.mobileMenuToggle;
+    const menu = elements.navMenu;
+
+    if (!toggle || !menu) return;
+
+    toggle.addEventListener('click', () => {
+        toggle.classList.toggle('active');
+        menu.classList.toggle('active');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+            toggle.classList.remove('active');
+            menu.classList.remove('active');
         }
     });
-}   
-// Scroll Effects
-function initializeScrollEffects() {
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset > 50;
-        navbar.classList.toggle('scrolled', scrolled);
+
+    // Close menu on navigation
+    menu.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            toggle.classList.remove('active');
+            menu.classList.remove('active');
+        });
     });
 }
 
-// Animation System
-function initializeAnimations() {
-    // Intersection Observer for fade-in animations
+// ============================================
+// SCROLL EFFECTS
+// ============================================
+function initScrollEffects() {
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+
+        // Navbar background
+        if (currentScroll > 50) {
+            elements.navbar?.classList.add('scrolled');
+        } else {
+            elements.navbar?.classList.remove('scrolled');
+        }
+    });
+}
+
+// ============================================
+// ANIMATIONS (Intersection Observer)
+// ============================================
+function initAnimations() {
     const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
+        rootMargin: '0px 0px -50px 0px'
     };
-    
-    const observer = new IntersectionObserver(function(entries) {
+
+    const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in');
+                entry.target.classList.add('visible');
+
+                // Animate skill levels when visible
+                if (entry.target.classList.contains('skill-category')) {
+                    const skillItems = entry.target.querySelectorAll('.skill-item');
+                    skillItems.forEach(item => item.classList.add('animated'));
+                }
             }
         });
     }, observerOptions);
-    
-    // Observe all fade-in elements
-    document.querySelectorAll('.fade-in').forEach(el => {
+
+    document.querySelectorAll('.animate-in').forEach(el => {
         observer.observe(el);
     });
 }
 
-// Contact Form Handler
-function handleFormSubmit(event) {
-    event.preventDefault();
-    
-    // Get form data
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
-    
-    // Simulate form submission
-    const submitBtn = event.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    
-    // Show loading state
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    submitBtn.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        // Show success message
-        showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
-        
-        // Reset form
-        event.target.reset();
-        
-        // Reset button
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }, 2000);
-}
-// Business Card Download Functions
-function downloadBusinessCard(format) {
-    let filename, mimeType;
-    
-    switch(format) {
-        case 'pdf':
-            filename = 'Kelvin_Developer_BusinessCard.pdf';
-            mimeType = 'application/pdf';
-            break;
-        case 'jpg':
-            filename = 'Kelvin_Developer_BusinessCard.jpg';
-            mimeType = 'image/jpeg';
-            break;
-        case 'vcard':
-            filename = 'Kelvin_Developer.vcf';
-            mimeType = 'text/vcard';
-            // Generate vCard content
-            generateVCard();
-            return;
-        default:
-            return;
+// ============================================
+// TYPING EFFECT
+// ============================================
+function initTypingEffect() {
+    const element = elements.typingText;
+    if (!element) return;
+
+    let roleIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    function type() {
+        const currentRole = CONFIG.typing.roles[roleIndex];
+
+        if (isDeleting) {
+            element.textContent = currentRole.substring(0, charIndex - 1);
+            charIndex--;
+        } else {
+            element.textContent = currentRole.substring(0, charIndex + 1);
+            charIndex++;
+        }
+
+        let speed = isDeleting ? CONFIG.typing.deleteSpeed : CONFIG.typing.typeSpeed;
+
+        if (!isDeleting && charIndex === currentRole.length) {
+            speed = CONFIG.typing.pauseDuration;
+            isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+            isDeleting = false;
+            roleIndex = (roleIndex + 1) % CONFIG.typing.roles.length;
+            speed = 500;
+        }
+
+        setTimeout(type, speed);
     }
-    // Create a temporary link for download
-    const link = document.createElement('a');
-    link.href = '#'; // Replace with actual business card file path after creating the business card
-    link.download = filename;   
-    
-    showNotification(`${format.toUpperCase()} business card download started!`, 'info');
-    
-    // In a real implementation, you would download the actual file
-    // For this purposes, it just show the notification
+
+    // Start after loader
+    setTimeout(type, 3000);
 }
 
-function generateVCard() {
-    // Generate vCard format contact info
-    const vCardContent = `BEGIN:VCARD
-VERSION:3.0
-FN:Kelvin Developer
-ORG:Freelance Developer
-TITLE:Front-end Developer
-EMAIL:kevrith@gmail.com
-TEL:+254 718 864 578
-URL:https://kevrith.github.io/Portfolio/
-ADR:;;Nairobi;Nairobi County;;00100;Kenya
-NOTE:Front-end Developer specializing in web development and software development
-END:VCARD`;
-    
-    // Create download
-    const blob = new Blob([vCardContent], { type: 'text/vcard' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'Kelvin_Developer.vcf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-    
-    showNotification('vCard downloaded successfully!', 'success');
+// ============================================
+// SKILL LEVELS
+// ============================================
+function initSkillLevels() {
+    document.querySelectorAll('.skill-level').forEach(level => {
+        const skillLevel = level.getAttribute('data-level');
+        level.style.setProperty('--level', `${skillLevel}%`);
+    });
 }
 
-// Notification System
+function animateSkillLevels() {
+    document.querySelectorAll('.skill-item').forEach((item, index) => {
+        setTimeout(() => {
+            item.classList.add('animated');
+        }, index * 50);
+    });
+}
+
+// ============================================
+// COUNTER ANIMATION
+// ============================================
+function initCounterAnimation() {
+    // Animate on first load
+    setTimeout(animateCounters, 3500);
+}
+
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-number[data-count]');
+
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+
+        function updateCounter() {
+            current += step;
+            if (current < target) {
+                counter.textContent = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target;
+            }
+        }
+
+        updateCounter();
+    });
+}
+
+// ============================================
+// CONTACT FORM
+// ============================================
+function initContactForm() {
+    const form = elements.contactForm;
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('.btn-submit');
+        submitBtn.classList.add('loading');
+
+        try {
+            const formData = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
+                form.reset();
+            } else {
+                throw new Error('Form submission failed');
+            }
+        } catch (error) {
+            showNotification('Oops! Something went wrong. Please try again.', 'error');
+        } finally {
+            submitBtn.classList.remove('loading');
+        }
+    });
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = `notification notification-${type}`;
     notification.innerHTML = `
         <div style="
             position: fixed;
             top: 100px;
             right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: 1rem 1.5rem;
-            color: var(--text-primary);
+            background: rgba(13, 13, 20, 0.95);
+            border: 1px solid ${type === 'success' ? '#00ff88' : type === 'error' ? '#ff6b6b' : '#00d4ff'};
+            border-radius: 8px;
+            padding: 16px 24px;
+            color: #e4e4e7;
             backdrop-filter: blur(10px);
             z-index: 10000;
-            max-width: 300px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: translateX(100%);
-            transition: transform 0.3s ease-out;
+            max-width: 350px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Grotesk', sans-serif;
         ">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}" 
-               style="color: var(--accent-primary); margin-right: 0.5rem;"></i>
-            ${message}
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"
+               style="color: ${type === 'success' ? '#00ff88' : type === 'error' ? '#ff6b6b' : '#00d4ff'}; font-size: 1.25rem;"></i>
+            <span>${message}</span>
         </div>
     `;
-    
+
     document.body.appendChild(notification);
     const notificationEl = notification.firstElementChild;
-    
+
     // Slide in
-    setTimeout(() => {
+    requestAnimationFrame(() => {
         notificationEl.style.transform = 'translateX(0)';
-    }, 100);
-    
+    });
+
     // Slide out and remove
     setTimeout(() => {
-        notificationEl.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
+        notificationEl.style.transform = 'translateX(120%)';
+        setTimeout(() => notification.remove(), 400);
+    }, 4000);
 }
 
-// Smooth Scrolling for Internal Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        if (this.getAttribute('data-page')) return; // Skip navigation links
-        
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
+// ============================================
+// UTILITIES
+// ============================================
+function setCurrentYear() {
+    if (elements.currentYear) {
+        elements.currentYear.textContent = new Date().getFullYear();
+    }
+}
 
-// Keyboard Navigation
-document.addEventListener('keydown', function(e) {
-    // Navigate with arrow keys
+// ============================================
+// KEYBOARD NAVIGATION
+// ============================================
+document.addEventListener('keydown', (e) => {
+    // Navigate with Alt + Arrow keys
     if (e.altKey) {
         const currentIndex = pages.indexOf(currentPage);
-        
+
         if (e.key === 'ArrowLeft' && currentIndex > 0) {
             e.preventDefault();
             navigateToPage(pages[currentIndex - 1]);
@@ -304,105 +557,65 @@ document.addEventListener('keydown', function(e) {
             navigateToPage(pages[currentIndex + 1]);
         }
     }
-});
 
-// Performance Optimization
-// Lazy load images when they come into viewport
-if ('IntersectionObserver' in window) {
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                if (img.dataset.src) {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    observer.unobserve(img);
-                }
-            }
-        });
-    });
-    
-    // Observe all images with data-src attribute
-    document.querySelectorAll('img[data-src]').forEach(img => {
-        imageObserver.observe(img);
-    });
-}
-
-// Add some interactive particles effect for the hero section
-function createParticles() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return; // Exit if hero section doesn't exist yet
-    
-    const particlesContainer = document.createElement('div');
-    particlesContainer.className = 'particles';
-    particlesContainer.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        pointer-events: none;
-        z-index: 1;
-    `;
-    
-    // Create floating particles
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.style.cssText = `
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--accent-primary);
-            border-radius: 50%;
-            opacity: ${Math.random() * 0.5 + 0.2};
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            animation: floatParticle ${Math.random() * 10 + 10}s infinite linear;
-        `;
-        particlesContainer.appendChild(particle);
+    // Close mobile menu with Escape
+    if (e.key === 'Escape') {
+        elements.navMenu?.classList.remove('active');
+        elements.mobileMenuToggle?.classList.remove('active');
     }
-    
-    hero.appendChild(particlesContainer);
-}
+});
 
-// Enhanced Button Interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Add click effect to all buttons
-    document.querySelectorAll('.btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            // Create ripple effect
-            const ripple = document.createElement('span');
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.cssText = `
-                position: absolute;
-                width: ${size}px;
-                height: ${size}px;
-                left: ${x}px;
-                top: ${y}px;
-                background: rgba(255, 255, 255, 0.3);
-                border-radius: 50%;
-                transform: scale(0);
-                animation: ripple 0.6s linear;
-                pointer-events: none;
-            `;
-            
-            this.style.position = 'relative';
-            this.style.overflow = 'hidden';
-            this.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
+// ============================================
+// SMOOTH SCROLL FOR ANCHOR LINKS
+// ============================================
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        if (this.getAttribute('data-page')) return;
+
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            e.preventDefault();
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     });
 });
 
-// Add ripple animation keyframes dynamically
+// ============================================
+// BUTTON RIPPLE EFFECT
+// ============================================
+document.querySelectorAll('.btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
+
+        const ripple = document.createElement('span');
+        ripple.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            left: ${x}px;
+            top: ${y}px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        `;
+
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+    });
+});
+
+// Add ripple animation
 const rippleStyles = document.createElement('style');
 rippleStyles.textContent = `
     @keyframes ripple {
@@ -414,60 +627,240 @@ rippleStyles.textContent = `
 `;
 document.head.appendChild(rippleStyles);
 
-// Theme Toggle (for potential future enhancement)
-function toggleTheme() {
-    document.body.classList.toggle('light-theme');
-    const isDark = !document.body.classList.contains('light-theme');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
+// ============================================
+// GITHUB API INTEGRATION
+// ============================================
+async function fetchGitHubStats() {
+    const { username, cacheKey, cacheDuration } = CONFIG.github;
 
-// Initialize theme from localStorage
-document.addEventListener('DOMContentLoaded', function() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
+    // Check cache first
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+        updateGitHubUI(cached);
+        return;
     }
-});
 
-// Enhanced Mobile Experience
-function handleTouchInteractions() {
-    let touchStartY = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        touchStartY = e.touches[0].clientY;
-    });
-    
-    document.addEventListener('touchmove', function(e) {
-        const touchY = e.touches[0].clientY;
-        const touchDiff = touchStartY - touchY;
-        
-        // Add subtle parallax effect on mobile scroll
-        if (Math.abs(touchDiff) > 50) {
-            const hero = document.querySelector('.hero');
-            if (hero) {
-                hero.style.transform = `translateY(${touchDiff * 0.1}px)`;
-            }
+    try {
+        // Fetch user profile data
+        const userResponse = await fetch(`https://api.github.com/users/${username}`);
+        if (!userResponse.ok) throw new Error('Failed to fetch user data');
+        const userData = await userResponse.json();
+
+        // Fetch recent events to detect achievements
+        const eventsResponse = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`);
+        const eventsData = eventsResponse.ok ? await eventsResponse.json() : [];
+
+        // Calculate stats
+        const stats = {
+            publicRepos: userData.public_repos,
+            followers: userData.followers,
+            following: userData.following,
+            avatarUrl: userData.avatar_url,
+            bio: userData.bio,
+            location: userData.location,
+            blog: userData.blog,
+            createdAt: userData.created_at,
+            achievements: detectAchievements(userData, eventsData),
+            fetchedAt: Date.now()
+        };
+
+        // Cache the results
+        saveToCache(cacheKey, stats, cacheDuration);
+
+        // Update UI
+        updateGitHubUI(stats);
+
+    } catch (error) {
+        console.warn('GitHub API fetch failed, using fallback values:', error);
+        // Use fallback values if API fails
+        updateGitHubUI({
+            publicRepos: 150,
+            followers: 3,
+            achievements: getDefaultAchievements()
+        });
+    }
+}
+
+function detectAchievements(userData, events) {
+    const achievements = [];
+    const accountAge = (Date.now() - new Date(userData.created_at)) / (1000 * 60 * 60 * 24 * 365);
+
+    // Pull Shark - Based on pull request activity
+    const prEvents = events.filter(e => e.type === 'PullRequestEvent' && e.payload?.action === 'opened');
+    if (prEvents.length >= 2) {
+        achievements.push({
+            name: 'Pull Shark',
+            icon: 'fa-code-pull-request',
+            description: `Opened ${prEvents.length}+ pull requests`,
+            level: prEvents.length >= 16 ? 'x3' : prEvents.length >= 4 ? 'x2' : ''
+        });
+    }
+
+    // YOLO - Pushing without PR review (commits directly to default branch)
+    const pushEvents = events.filter(e => e.type === 'PushEvent');
+    if (pushEvents.length > 0) {
+        achievements.push({
+            name: 'YOLO',
+            icon: 'fa-bolt',
+            description: 'Pushed without review'
+        });
+    }
+
+    // Quickdraw - Fast issue/PR closing
+    const issueEvents = events.filter(e => e.type === 'IssuesEvent' || e.type === 'PullRequestEvent');
+    if (issueEvents.length > 0) {
+        achievements.push({
+            name: 'Quickdraw',
+            icon: 'fa-crosshairs',
+            description: 'Fast responder'
+        });
+    }
+
+    // Arctic Code Vault Contributor (if account is old enough and has significant repos)
+    if (accountAge >= 1 && userData.public_repos >= 10) {
+        achievements.push({
+            name: 'Arctic Code Vault',
+            icon: 'fa-snowflake',
+            description: 'Contributed to archived code'
+        });
+    }
+
+    // Starstruck - If user has repos with stars
+    if (userData.public_repos >= 50) {
+        achievements.push({
+            name: 'Galaxy Brain',
+            icon: 'fa-brain',
+            description: 'Answered discussions helpfully'
+        });
+    }
+
+    // Pair Extraordinaire - Collaborative commits
+    const coAuthoredCommits = events.filter(e =>
+        e.type === 'PushEvent' &&
+        e.payload?.commits?.some(c => c.message?.toLowerCase().includes('co-authored'))
+    );
+    if (coAuthoredCommits.length > 0) {
+        achievements.push({
+            name: 'Pair Extraordinaire',
+            icon: 'fa-user-group',
+            description: 'Collaborated on commits'
+        });
+    }
+
+    return achievements.length > 0 ? achievements : getDefaultAchievements();
+}
+
+function getDefaultAchievements() {
+    return [
+        { name: 'Pull Shark', icon: 'fa-code-pull-request', description: 'Opened pull requests', level: 'x2' },
+        { name: 'YOLO', icon: 'fa-bolt', description: 'Pushed without review' },
+        { name: 'Quickdraw', icon: 'fa-crosshairs', description: 'Fast responder' }
+    ];
+}
+
+function updateGitHubUI(stats) {
+    // Update repository count
+    const repoCountEl = document.querySelector('[data-stat="repos"]');
+    if (repoCountEl) {
+        repoCountEl.setAttribute('data-count', stats.publicRepos);
+        animateCounter(repoCountEl, stats.publicRepos);
+    }
+
+    // Update followers count
+    const followersCountEl = document.querySelector('[data-stat="followers"]');
+    if (followersCountEl) {
+        followersCountEl.setAttribute('data-count', stats.followers);
+        animateCounter(followersCountEl, stats.followers);
+    }
+
+    // Update achievements in About section
+    const achievementsContainer = document.getElementById('github-achievements');
+    if (achievementsContainer && stats.achievements) {
+        achievementsContainer.innerHTML = stats.achievements.map(achievement => `
+            <div class="achievement-item" title="${achievement.description}">
+                <i class="fas ${achievement.icon}"></i>
+                <span>${achievement.name}${achievement.level ? ` (${achievement.level})` : ''}</span>
+            </div>
+        `).join('');
+    }
+
+    // Update "View All Repositories" button text
+    const viewAllBtn = document.querySelector('.projects-cta .btn-text');
+    if (viewAllBtn) {
+        viewAllBtn.textContent = `View All ${stats.publicRepos} Repositories`;
+    }
+}
+
+function animateCounter(element, target) {
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
+
+    function update() {
+        current += step;
+        if (current < target) {
+            element.textContent = Math.floor(current);
+            requestAnimationFrame(update);
+        } else {
+            element.textContent = target;
         }
-    });
+    }
+
+    update();
 }
 
-// Initialize touch interactions on mobile
-if ('ontouchstart' in window) {
-    handleTouchInteractions();
+// ============================================
+// CACHE UTILITIES
+// ============================================
+function saveToCache(key, data, duration) {
+    try {
+        const cacheData = {
+            data,
+            expiry: Date.now() + duration
+        };
+        localStorage.setItem(key, JSON.stringify(cacheData));
+    } catch (e) {
+        console.warn('Failed to save to cache:', e);
+    }
 }
 
-// Console Branding
-console.log('%c🚀 Portfolio website loaded successfully!', 'color: #00d4ff; font-size: 16px; font-weight: bold;');
-console.log('%c💼 Built with HTML5, CSS3, and Vanilla JavaScript', 'color: #4ecdc4; font-size: 14px;');
-console.log('%c📱 Fully responsive and optimized for all devices', 'color: #ff6b6b; font-size: 14px;');
+function getFromCache(key) {
+    try {
+        const cached = localStorage.getItem(key);
+        if (!cached) return null;
 
-// Export functions for potential module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        navigateToPage,
-        showNotification,
-        downloadCV,
-        downloadBusinessCard,
-        generateVCard
-    };
+        const { data, expiry } = JSON.parse(cached);
+        if (Date.now() > expiry) {
+            localStorage.removeItem(key);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        console.warn('Failed to read from cache:', e);
+        return null;
+    }
 }
+
+// ============================================
+// CONSOLE EASTER EGG
+// ============================================
+console.log(`
+%c╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║   👋 Hey there, curious developer!                        ║
+║                                                           ║
+║   I'm Kelvin Murithi Johnson                              ║
+║   Full-Stack Developer | Python Architect | API Engineer  ║
+║                                                           ║
+║   🚀 Tech Stack: Python, Flask, React, TypeScript,        ║
+║      PostgreSQL, REST APIs & more!                        ║
+║                                                           ║
+║   📧 Let's connect: kevrith@gmail.com                     ║
+║   🐙 GitHub: github.com/kevrith                           ║
+║                                                           ║
+║   🟢 Available for hire | Open to remote work             ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+`, 'color: #00ff88; font-family: monospace; font-size: 12px;');
+
+console.log('%c🔍 Inspecting my portfolio? I like your style!', 'color: #00d4ff; font-size: 14px;');
