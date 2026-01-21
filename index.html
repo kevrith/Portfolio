@@ -25,6 +25,9 @@
     <!-- Devicons for tech stack -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
 
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -66,6 +69,7 @@
                 <li><a href="#skills" class="nav-link" data-page="skills"><span class="nav-number">03.</span>Skills</a></li>
                 <li><a href="#projects" class="nav-link" data-page="projects"><span class="nav-number">04.</span>Projects</a></li>
                 <li><a href="#contact" class="nav-link" data-page="contact"><span class="nav-number">05.</span>Contact</a></li>
+                <li><a href="#charge-sheet" class="nav-link" data-page="charge-sheet"><span class="nav-number">06.</span>Charge Sheet</a></li>
             </ul>
 
             <div class="nav-actions">
@@ -761,6 +765,156 @@
         </div>
     </section>
 
+    <!-- Charge Sheet Section -->
+    <section class="page" id="charge-sheet">
+        <div class="section-container">
+            <h2 class="section-title animate-in">
+                <span class="section-number">06.</span>
+                <span class="title-text">Charge Sheet</span>
+                <span class="title-line"></span>
+            </h2>
+
+            <div class="contact-wrapper">
+                <div class="contact-content animate-in">
+                    <div class="contact-terminal">
+                        <div class="terminal-header">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                            <span class="terminal-title">pricing_calculator.sh</span>
+                        </div>
+                        <div class="terminal-body">
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> ./calculate_price.sh --help
+                            </p>
+                            <div class="terminal-output">
+                                <p>Usage: calculate_price.sh [OPTIONS] PROJECT_DESCRIPTION</p>
+                                <p></p>
+                                <p>Calculate project pricing based on requirements analysis.</p>
+                                <p></p>
+                                <p>Features detected automatically:</p>
+                                <p>• E-commerce functionality (+$500)</p>
+                                <p>• Blog/CMS features (+$200)</p>
+                                <p>• Custom integrations (+$300)</p>
+                                <p>• Rush timeline (+20%)</p>
+                                <p></p>
+                                <p>Real-time currency conversion:</p>
+                                <p>• USD to EUR using live exchange rates</p>
+                                <p>• API: exchangerate-api.com</p>
+                            </div>
+
+                            <p class="terminal-line">
+                                <span class="prompt">$</span> echo $BASE_PRICE
+                            </p>
+                            <p class="terminal-output highlight">$500 (≈€425, KSh65,000, £375)</p>
+                        </div>
+                    </div>
+
+                    <p class="contact-description">
+                        Need a website built? Fill out the form below with your project details.
+                        I'll analyze your requirements and send you a detailed price quote via email
+                        so we can discuss the scope of the project further.
+                    </p>
+                </div>
+
+                <div class="contact-form-wrapper animate-in">
+                    <form id="charge-sheet-form" class="contact-form">
+                        <div class="form-group">
+                            <label for="client-name" class="form-label">
+                                <span class="label-icon"><i class="fas fa-user"></i></span>
+                                Your Name
+                            </label>
+                            <input type="text" id="client-name" name="client_name" class="form-input" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="client-email" class="form-label">
+                                <span class="label-icon"><i class="fas fa-envelope"></i></span>
+                                Email Address
+                            </label>
+                            <input type="email" id="client-email" name="client_email" class="form-input" required placeholder="john@example.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project-type" class="form-label">
+                                <span class="label-icon"><i class="fas fa-cubes"></i></span>
+                                Project Type
+                            </label>
+                            <select id="project-type" name="project_type" class="form-input form-select" required>
+                                <option value="">Select project type...</option>
+                                <option value="business">Business Website</option>
+                                <option value="ecommerce">E-commerce Store</option>
+                                <option value="blog">Blog/CMS</option>
+                                <option value="portfolio">Portfolio Site</option>
+                                <option value="webapp">Web Application</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeline" class="form-label">
+                                <span class="label-icon"><i class="fas fa-clock"></i></span>
+                                Preferred Timeline
+                            </label>
+                            <select id="timeline" name="timeline" class="form-input form-select" required>
+                                <option value="">Select timeline...</option>
+                                <option value="flexible">Flexible (2-4 weeks)</option>
+                                <option value="standard">Standard (1-2 weeks)</option>
+                                <option value="rush">Rush (3-7 days)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currency" class="form-label">
+                                <span class="label-icon"><i class="fas fa-globe"></i></span>
+                                Preferred Currency
+                            </label>
+                            <select id="currency" name="currency" class="form-input form-select" required>
+                                <option value="USD">USD - US Dollar ($)</option>
+                                <option value="EUR">EUR - Euro (€)</option>
+                                <option value="KES">KES - Kenyan Shilling (KSh)</option>
+                                <option value="GBP">GBP - British Pound (£)</option>
+                                <option value="CAD">CAD - Canadian Dollar (C$)</option>
+                                <option value="AUD">AUD - Australian Dollar (A$)</option>
+                                <option value="JPY">JPY - Japanese Yen (¥)</option>
+                                <option value="CHF">CHF - Swiss Franc (CHF)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="budget-range" class="form-label">
+                                <span class="label-icon"><i class="fas fa-dollar-sign"></i></span>
+                                Budget Range (Optional)
+                            </label>
+                            <select id="budget-range" name="budget_range" class="form-input form-select">
+                                <option value="">Select budget range...</option>
+                                <option value="under-1000">Under $1,000</option>
+                                <option value="1000-3000">$1,000 - $3,000</option>
+                                <option value="3000-5000">$3,000 - $5,000</option>
+                                <option value="5000-plus">$5,000+</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project-description" class="form-label">
+                                <span class="label-icon"><i class="fas fa-file-alt"></i></span>
+                                Project Description
+                            </label>
+                            <textarea id="project-description" name="project_description" class="form-input form-textarea" rows="6" required
+                                placeholder="Describe your project in detail. What features do you need? What is the main goal of the website? Any specific functionality or design preferences?"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <span class="btn-text">Get Price Quote</span>
+                            <span class="btn-icon"><i class="fas fa-calculator"></i></span>
+                            <span class="btn-loading"><i class="fas fa-spinner fa-spin"></i></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
@@ -779,7 +933,7 @@
             </p>
 
             <p class="footer-copyright">
-                &copy; <span id="current-year">2025</span> | Made with
+                &copy; <span id="current-year"></span> | Made with
                 <span class="heart"><i class="fas fa-heart"></i></span> and
                 <span class="coffee"><i class="fas fa-coffee"></i></span>
             </p>

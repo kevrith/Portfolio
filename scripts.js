@@ -57,14 +57,16 @@ const elements = {
     cursorGlow: document.getElementById('cursor-glow'),
     typingText: document.getElementById('typing-text'),
     currentYear: document.getElementById('current-year'),
-    contactForm: document.getElementById('contact-form')
+    contactForm: document.getElementById('contact-form'),
+    chargeSheetForm: document.getElementById('charge-sheet-form')
 };
 
 // ============================================
 // STATE
 // ============================================
 let currentPage = 'home';
-const pages = ['home', 'about', 'skills', 'projects', 'contact'];
+const pages = ['home', 'about', 'skills', 'projects', 'contact', 'charge-sheet'];
+let exchangeRates = { USD: 1 }; // Exchange rates relative to USD, default to USD only if API fails
 
 // ============================================
 // INITIALIZATION
@@ -81,7 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initSkillLevels();
     initCounterAnimation();
     initContactForm();
+    initChargeSheetForm();
+    initEmailJS();
     setCurrentYear();
+    fetchExchangeRate();
     fetchGitHubStats();
     fetchGitHubContributions();
 });
@@ -483,6 +488,191 @@ function initContactForm() {
             submitBtn.classList.remove('loading');
         }
     });
+}
+
+// ============================================
+// CHARGE SHEET FORM
+// ============================================
+function initChargeSheetForm() {
+    const form = elements.chargeSheetForm;
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const submitBtn = form.querySelector('.btn-submit');
+        submitBtn.classList.add('loading');
+
+        try {
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Calculate price
+            const priceRange = calculateProjectPrice(data);
+
+            // Send email with price quote
+            await sendPriceQuote(data, priceRange);
+
+            showNotification('Price quote sent successfully! Check your email for the detailed quote.', 'success');
+            form.reset();
+        } catch (error) {
+            console.error('Charge sheet submission error:', error);
+            showNotification('Failed to send price quote. Please try again.', 'error');
+        } finally {
+            submitBtn.classList.remove('loading');
+        }
+    });
+}
+
+function calculateProjectPrice(data) {
+    let basePrice = 500;
+    const features = [];
+    const selectedCurrency = data.currency || 'USD';
+    const rate = exchangeRates[selectedCurrency] || 1;
+
+    // Analyze project description for keywords
+    const description = data.project_description?.toLowerCase() || '';
+
+    // E-commerce features
+    if (description.includes('ecommerce') || description.includes('e-commerce') ||
+        description.includes('shop') || description.includes('store') ||
+        description.includes('cart') || description.includes('payment')) {
+        basePrice += 500;
+        features.push('E-commerce functionality (+$500)');
+    }
+
+    // Blog/CMS features
+    if (description.includes('blog') || description.includes('cms') ||
+        description.includes('content') || description.includes('article') ||
+        description.includes('news') || description.includes('magazine')) {
+        basePrice += 200;
+        features.push('Blog/CMS features (+$200)');
+    }
+
+    // Custom integrations
+    if (description.includes('api') || description.includes('integration') ||
+        description.includes('third-party') || description.includes('custom') ||
+        description.includes('complex') || description.includes('advanced')) {
+        basePrice += 300;
+        features.push('Custom integrations (+$300)');
+    }
+
+    // Database complexity
+    if (description.includes('database') || description.includes('data') ||
+        description.includes('analytics') || description.includes('reporting')) {
+        basePrice += 200;
+        features.push('Advanced database features (+$200)');
+    }
+
+    // Authentication/User management
+    if (description.includes('login') || description.includes('auth') ||
+        description.includes('user') || description.includes('account') ||
+        description.includes('member')) {
+        basePrice += 150;
+        features.push('User authentication (+$150)');
+    }
+
+    // Timeline adjustments
+    if (data.timeline === 'rush') {
+        basePrice = Math.round(basePrice * 1.2); // 20% rush fee
+        features.push('Rush timeline (+20%)');
+    }
+
+    // Project type bonuses
+    if (data.project_type === 'ecommerce') {
+        basePrice += 200;
+        features.push('Full e-commerce setup (+$200)');
+    } else if (data.project_type === 'webapp') {
+        basePrice += 300;
+        features.push('Web application complexity (+$300)');
+    }
+
+    // Create price range
+    const minPrice = Math.max(500, basePrice - 200);
+    const maxPrice = basePrice + 300;
+
+    // Convert prices to selected currency
+    const convertToSelectedCurrency = (usd) => Math.round(usd * rate);
+
+    // Get currency symbol
+    const getCurrencySymbol = (currency) => {
+        const symbols = {
+            USD: '$',
+            EUR: '€',
+            KES: 'KSh',
+            GBP: '£',
+            CAD: 'C$',
+            AUD: 'A$',
+            JPY: '¥',
+            CHF: 'CHF'
+        };
+        return symbols[currency] || currency;
+    };
+
+    return {
+        basePrice,
+        minPrice,
+        maxPrice,
+        basePriceConverted: convertToSelectedCurrency(basePrice),
+        minPriceConverted: convertToSelectedCurrency(minPrice),
+        maxPriceConverted: convertToSelectedCurrency(maxPrice),
+        currency: selectedCurrency,
+        currencySymbol: getCurrencySymbol(selectedCurrency),
+        exchangeRate: rate,
+        features: features.length > 0 ? features : ['Basic website features'],
+        timeline: data.timeline || 'standard'
+    };
+}
+
+async function sendPriceQuote(clientData, priceRange) {
+    // Initialize EmailJS
+    if (!window.emailjs) {
+        throw new Error('EmailJS not loaded');
+    }
+
+    // You'll need to set up EmailJS with your service ID, template ID, and public key
+    // For now, we'll use a placeholder - you need to configure this
+    const serviceId = 'your_service_id'; // Replace with your EmailJS service ID
+    const templateId = 'your_template_id'; // Replace with your EmailJS template ID
+    const publicKey = 'your_public_key'; // Replace with your EmailJS public key
+
+    const templateParams = {
+        to_email: 'kevrith@gmail.com', // Your email to receive the quote
+        client_name: clientData.client_name,
+        client_email: clientData.client_email,
+        project_type: clientData.project_type,
+        project_description: clientData.project_description,
+        timeline: clientData.timeline,
+        budget_range: clientData.budget_range,
+        currency: priceRange.currency,
+        price_range_min: `${priceRange.currencySymbol}${priceRange.minPriceConverted}`,
+        price_range_max: `${priceRange.currencySymbol}${priceRange.maxPriceConverted}`,
+        base_price: `${priceRange.currencySymbol}${priceRange.basePriceConverted}`,
+        usd_equivalent: priceRange.currency !== 'USD' ? `USD: $${priceRange.minPrice} - $${priceRange.maxPrice}` : '',
+        exchange_rate: `1 USD = ${priceRange.exchangeRate.toFixed(4)} ${priceRange.currency}`,
+        features_list: priceRange.features.join(', '),
+        reply_to: clientData.client_email
+    };
+
+    try {
+        await emailjs.send(serviceId, templateId, templateParams, publicKey);
+    } catch (error) {
+        console.error('EmailJS error:', error);
+        throw error;
+    }
+}
+
+// ============================================
+// EMAILJS INITIALIZATION
+// ============================================
+function initEmailJS() {
+    if (window.emailjs) {
+        // Initialize EmailJS with your public key
+        // You'll need to replace this with your actual public key
+        emailjs.init('your_public_key'); // Replace with your EmailJS public key
+    } else {
+        console.warn('EmailJS not loaded');
+    }
 }
 
 // ============================================
@@ -1085,6 +1275,59 @@ function getFromCache(key) {
     } catch (e) {
         console.warn('Failed to read from cache:', e);
         return null;
+    }
+}
+
+// ============================================
+// CURRENCY EXCHANGE RATE
+// ============================================
+async function fetchExchangeRate() {
+    const cacheKey = 'exchange_rates';
+    const cacheDuration = 24 * 60 * 60 * 1000; // 24 hours
+
+    // Check cache first
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+        exchangeRates = cached;
+        return;
+    }
+
+    try {
+        // Fetch exchange rates from exchangerate-api.com (USD as base)
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        if (!response.ok) throw new Error('Failed to fetch exchange rates');
+
+        const data = await response.json();
+
+        // Store rates for all supported currencies
+        exchangeRates = {
+            USD: 1, // Base currency
+            EUR: data.rates.EUR || 0.85,
+            KES: data.rates.KES || 130,
+            GBP: data.rates.GBP || 0.75,
+            CAD: data.rates.CAD || 1.25,
+            AUD: data.rates.AUD || 1.35,
+            JPY: data.rates.JPY || 110,
+            CHF: data.rates.CHF || 0.90
+        };
+
+        // Cache the rates for 24 hours
+        saveToCache(cacheKey, exchangeRates, cacheDuration);
+
+        console.log('Exchange rates fetched:', exchangeRates);
+    } catch (error) {
+        console.warn('Failed to fetch exchange rates, using fallback rates:', error);
+        // Fallback rates
+        exchangeRates = {
+            USD: 1,
+            EUR: 0.85,
+            KES: 130,
+            GBP: 0.75,
+            CAD: 1.25,
+            AUD: 1.35,
+            JPY: 110,
+            CHF: 0.90
+        };
     }
 }
 
