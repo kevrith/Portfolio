@@ -2203,13 +2203,9 @@ body {
         line-height: 1.6;
     }
 
-    /* Scroll indicator */
+    /* Scroll indicator - hide on mobile to prevent overlap */
     .scroll-indicator {
-        font-size: 1rem;
-    }
-
-    .scroll-indicator span {
-        font-size: 0.95rem;
+        display: none;
     }
 
     /* Section titles - LARGER */
