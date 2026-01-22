@@ -2067,12 +2067,12 @@ body {
     }
 
     .hero-badge {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         padding: 6px 12px;
     }
 
     .hero-description {
-        font-size: 0.95rem;
+        font-size: 1.1rem;
     }
 
     .hero-stats {
@@ -2080,11 +2080,11 @@ body {
     }
 
     .stat-number {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
 
     .stat-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
 
     /* Code window mobile */
@@ -2101,7 +2101,7 @@ body {
     /* About section mobile */
     .about-terminal .terminal-body {
         padding: 12px;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .achievements-list {
@@ -2132,7 +2132,7 @@ body {
     }
 
     .skill-item span {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
     }
 
     /* Projects mobile */
@@ -2145,11 +2145,12 @@ body {
     }
 
     .project-title {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
     }
 
     .project-description {
         padding: 16px;
+        font-size: 1rem;
     }
 
     .project-tech-list {
@@ -2157,13 +2158,13 @@ body {
     }
 
     .project-tech-list li {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         padding: 3px 8px;
     }
 
     /* Contact/Charge sheet mobile */
     .contact-json {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         padding-left: 10px;
     }
 
@@ -2172,19 +2173,19 @@ body {
     }
 
     .pricing-features h3 {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
     .pricing-features li {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
 
     .form-label {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
 
     .form-note {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         padding: 10px 12px;
     }
 
@@ -2194,11 +2195,11 @@ body {
     }
 
     .footer-text {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
 
     .footer-copyright {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         flex-wrap: wrap;
         justify-content: center;
     }
@@ -2221,11 +2222,11 @@ body {
     }
 
     .stats-card-value {
-        font-size: 1.25rem;
+        font-size: 1.3rem;
     }
 
     .stats-card-label {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
     }
 
     /* Notification mobile */

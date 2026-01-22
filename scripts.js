@@ -1333,9 +1333,9 @@ function animateCounter(element, target) {
 async function fetchGitHubContributions() {
     const { username } = CONFIG.github;
     const cacheKey = 'github_contributions_cache';
-    const cacheDuration = 15 * 60 * 1000; // 15 minutes for fresher data
+    const cacheDuration = 5 * 60 * 1000; // 5 minutes for fresher data
 
-    // Check cache first (but with shorter duration for accuracy)
+    // Check cache first
     const cached = getFromCache(cacheKey);
     if (cached) {
         renderContributionGraph(cached);
@@ -1350,32 +1350,41 @@ async function fetchGitHubContributions() {
         ]);
 
         let contributionData = null;
+        let eventsData = [];
 
         // Try primary API first
         if (jogruberResponse.status === 'fulfilled' && jogruberResponse.value.ok) {
             contributionData = await jogruberResponse.value.json();
         }
 
-        // If we got data, enhance it with recent events count
-        if (contributionData) {
-            // Get additional contribution data from GitHub events
-            if (githubEventsResponse.status === 'fulfilled' && githubEventsResponse.value.ok) {
-                const events = await githubEventsResponse.value.json();
-                // Count push event commits for more accurate recent activity
-                let recentCommits = 0;
-                events.forEach(e => {
-                    if (e.type === 'PushEvent' && e.payload?.commits) {
-                        recentCommits += e.payload.commits.length;
-                    }
-                });
-                contributionData.recentCommits = recentCommits;
-            }
+        // Get events data for real-time contribution info
+        if (githubEventsResponse.status === 'fulfilled' && githubEventsResponse.value.ok) {
+            eventsData = await githubEventsResponse.value.json();
+        }
 
-            // Store the data with metadata
+        // If we got contribution data, enhance it with real-time events
+        if (contributionData) {
+            // Build a map of recent contributions from events (real-time data)
+            const recentContributions = new Map();
+
+            eventsData.forEach(event => {
+                const eventDate = event.created_at.split('T')[0];
+                const current = recentContributions.get(eventDate) || 0;
+
+                // Count different contribution types
+                if (event.type === 'PushEvent' && event.payload?.commits) {
+                    recentContributions.set(eventDate, current + event.payload.commits.length);
+                } else if (['CreateEvent', 'PullRequestEvent', 'IssuesEvent', 'PullRequestReviewEvent'].includes(event.type)) {
+                    recentContributions.set(eventDate, current + 1);
+                }
+            });
+
+            // Store events data for streak calculation (convert Map to object for caching)
+            contributionData.recentEvents = Object.fromEntries(recentContributions);
             contributionData.fetchedAt = Date.now();
             contributionData.isLive = true;
 
-            // Cache for 15 minutes
+            // Cache for 5 minutes
             saveToCache(cacheKey, contributionData, cacheDuration);
 
             renderContributionGraph(contributionData);
@@ -1445,24 +1454,70 @@ function renderContributionGraph(data) {
     let longestStreak = 0;
     let tempStreak = 0;
 
-    // Sort by date (newest first for current streak)
-    const sortedDays = [...flatContributions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Calculate current streak (from today backwards, checking consecutive days)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Calculate current streak (from today backwards)
-    const today = new Date().toISOString().split('T')[0];
-    let checkingCurrent = true;
+    // Helper to get date N days ago
+    const getDaysAgo = (n) => {
+        const d = new Date(today);
+        d.setDate(d.getDate() - n);
+        return d.toISOString().split('T')[0];
+    };
 
-    for (const day of sortedDays) {
-        if (checkingCurrent) {
-            // Allow for today having 0 contributions (day not over yet)
-            if (day.count > 0) {
-                currentStreak++;
-            } else if (day.date !== today) {
-                // Stop counting if we hit a zero that's not today
-                checkingCurrent = false;
+    // Build a map of date -> count for quick lookup
+    // Start with the API data
+    const contributionMap = new Map();
+    flatContributions.forEach(day => {
+        contributionMap.set(day.date, day.count);
+    });
+
+    // IMPORTANT: Merge with real-time events data (this is more accurate for recent days)
+    // The Events API is real-time, while the contributions API may lag
+    if (data.recentEvents && data.recentEvents instanceof Map) {
+        data.recentEvents.forEach((count, date) => {
+            // Use the higher value between API and events (events may have more recent data)
+            const existingCount = contributionMap.get(date) || 0;
+            if (count > existingCount) {
+                contributionMap.set(date, count);
             }
-        }
+        });
+    } else if (data.recentEvents) {
+        // Handle if it was serialized as object (from cache)
+        Object.entries(data.recentEvents).forEach(([date, count]) => {
+            const existingCount = contributionMap.get(date) || 0;
+            if (count > existingCount) {
+                contributionMap.set(date, count);
+            }
+        });
     }
+
+    // Calculate current streak by checking consecutive days from today
+    let daysBack = 0;
+
+    while (true) {
+        const checkDate = getDaysAgo(daysBack);
+        const count = contributionMap.get(checkDate) || 0;
+
+        if (count > 0) {
+            currentStreak++;
+        } else if (daysBack === 0) {
+            // Today has no contributions yet - check from yesterday
+            daysBack++;
+            continue;
+        } else {
+            // Hit a day with no contributions - streak ends
+            break;
+        }
+
+        daysBack++;
+
+        // Safety limit - don't go back more than a year
+        if (daysBack > 365) break;
+    }
+
+    // Log for debugging
+    console.log(`GitHub Streak calculated: ${currentStreak} days (checked from ${getDaysAgo(0)} backwards)`);
 
     // Calculate longest streak
     const chronological = [...flatContributions].sort((a, b) => new Date(a.date) - new Date(b.date));
