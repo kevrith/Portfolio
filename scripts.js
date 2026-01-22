@@ -7,6 +7,19 @@
 // CONFIGURATION
 // ============================================
 const CONFIG = {
+    // =============================================
+    // EMAIL CONFIGURATION - Web3Forms (FREE)
+    // =============================================
+    // To set up email:
+    // 1. Go to https://web3forms.com
+    // 2. Enter your email address and click "Create Access Key"
+    // 3. Check your email and copy the access key
+    // 4. Replace 'YOUR_WEB3FORMS_ACCESS_KEY' below with your key
+    // =============================================
+    email: {
+        web3formsKey: '56befb88-24db-457c-828e-55c43878fbb9',
+        recipientEmail: 'kevrith@gmail.com'
+    },
     github: {
         username: 'kevrith',
         cacheKey: 'github_stats_cache',
@@ -84,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCounterAnimation();
     initContactForm();
     initChargeSheetForm();
-    initEmailJS();
+    initEmailService();
     setCurrentYear();
     fetchExchangeRate();
     fetchGitHubStats();
@@ -467,22 +480,60 @@ function initContactForm() {
         submitBtn.classList.add('loading');
 
         try {
+            // Check if email is configured
+            if (!isEmailConfigured()) {
+                showNotification('Email service not configured. Please contact me directly at kevrith@gmail.com', 'info');
+                // Open email client as fallback
+                const formData = new FormData(form);
+                const mailtoLink = `mailto:kevrith@gmail.com?subject=${encodeURIComponent(formData.get('subject'))}&body=${encodeURIComponent(`From: ${formData.get('name')}\nEmail: ${formData.get('email')}\n\n${formData.get('message')}`)}`;
+                window.location.href = mailtoLink;
+                return;
+            }
+
             const formData = new FormData(form);
-            const response = await fetch(form.action, {
+
+            // Web3Forms API key from config
+            const WEB3FORMS_KEY = CONFIG.email.web3formsKey;
+
+            // Create Web3Forms submission
+            const web3FormData = new FormData();
+            web3FormData.append('access_key', WEB3FORMS_KEY);
+            web3FormData.append('subject', `Portfolio Contact: ${formData.get('subject')} from ${formData.get('name')}`);
+            web3FormData.append('from_name', formData.get('name'));
+            web3FormData.append('reply_to', formData.get('email'));
+
+            const message = `
+📬 NEW CONTACT MESSAGE
+━━━━━━━━━━━━━━━━━━━━━━
+
+👤 From: ${formData.get('name')}
+📧 Email: ${formData.get('email')}
+📋 Subject: ${formData.get('subject')}
+
+💬 Message:
+${formData.get('message')}
+
+━━━━━━━━━━━━━━━━━━━━━━
+Sent from your portfolio website
+            `.trim();
+
+            web3FormData.append('message', message);
+
+            const response = await fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
+                body: web3FormData
             });
 
-            if (response.ok) {
+            const result = await response.json();
+
+            if (result.success) {
                 showNotification('Message sent successfully! I\'ll get back to you soon.', 'success');
                 form.reset();
             } else {
-                throw new Error('Form submission failed');
+                throw new Error(result.message || 'Form submission failed');
             }
         } catch (error) {
+            console.error('Contact form error:', error);
             showNotification('Oops! Something went wrong. Please try again.', 'error');
         } finally {
             submitBtn.classList.remove('loading');
@@ -510,14 +561,28 @@ function initChargeSheetForm() {
             // Calculate price
             const priceRange = calculateProjectPrice(data);
 
+            // Check if email is configured
+            if (!isEmailConfigured()) {
+                // Still show the quote modal but warn about email
+                showQuoteModal(data, priceRange);
+                showNotification('Quote calculated! Email service not configured - please contact me directly.', 'info');
+                form.reset();
+                return;
+            }
+
             // Send email with price quote
             await sendPriceQuote(data, priceRange);
 
-            showNotification('Price quote sent successfully! Check your email for the detailed quote.', 'success');
+            showNotification('Price quote sent successfully!', 'success');
             form.reset();
         } catch (error) {
             console.error('Charge sheet submission error:', error);
-            showNotification('Failed to send price quote. Please try again.', 'error');
+            // Still show the quote even if email fails
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            const priceRange = calculateProjectPrice(data);
+            showQuoteModal(data, priceRange);
+            showNotification('Quote calculated but email failed. Please contact me directly at kevrith@gmail.com', 'error');
         } finally {
             submitBtn.classList.remove('loading');
         }
@@ -525,71 +590,165 @@ function initChargeSheetForm() {
 }
 
 function calculateProjectPrice(data) {
-    let basePrice = 500;
+    let basePrice = 300; // Start lower for basic sites
     const features = [];
+    const detectedFeatures = [];
     const selectedCurrency = data.currency || 'USD';
     const rate = exchangeRates[selectedCurrency] || 1;
 
     // Analyze project description for keywords
     const description = data.project_description?.toLowerCase() || '';
 
-    // E-commerce features
-    if (description.includes('ecommerce') || description.includes('e-commerce') ||
-        description.includes('shop') || description.includes('store') ||
-        description.includes('cart') || description.includes('payment')) {
-        basePrice += 500;
-        features.push('E-commerce functionality (+$500)');
+    // Project type base pricing
+    const projectTypePricing = {
+        'business': { base: 400, name: 'Business Website' },
+        'ecommerce': { base: 800, name: 'E-commerce Store' },
+        'blog': { base: 350, name: 'Blog/CMS' },
+        'portfolio': { base: 300, name: 'Portfolio Site' },
+        'webapp': { base: 700, name: 'Web Application' },
+        'other': { base: 400, name: 'Custom Project' }
+    };
+
+    if (data.project_type && projectTypePricing[data.project_type]) {
+        basePrice = projectTypePricing[data.project_type].base;
+        features.push(`${projectTypePricing[data.project_type].name} base (+$${projectTypePricing[data.project_type].base})`);
+    }
+
+    // E-commerce features detection
+    const ecommerceKeywords = ['ecommerce', 'e-commerce', 'shop', 'store', 'cart', 'payment', 'checkout', 'products', 'inventory', 'orders', 'shipping', 'mpesa', 'm-pesa', 'paypal', 'stripe'];
+    if (ecommerceKeywords.some(kw => description.includes(kw))) {
+        basePrice += 400;
+        features.push('E-commerce functionality (+$400)');
+        detectedFeatures.push('Shopping cart & checkout');
+    }
+
+    // Payment integration
+    const paymentKeywords = ['payment', 'pay', 'mpesa', 'm-pesa', 'paypal', 'stripe', 'credit card', 'debit', 'transaction'];
+    if (paymentKeywords.some(kw => description.includes(kw)) && !features.includes('E-commerce functionality (+$400)')) {
+        basePrice += 200;
+        features.push('Payment integration (+$200)');
+        detectedFeatures.push('Payment gateway');
     }
 
     // Blog/CMS features
-    if (description.includes('blog') || description.includes('cms') ||
-        description.includes('content') || description.includes('article') ||
-        description.includes('news') || description.includes('magazine')) {
-        basePrice += 200;
-        features.push('Blog/CMS features (+$200)');
+    const blogKeywords = ['blog', 'cms', 'content', 'article', 'news', 'magazine', 'posts', 'editor', 'publish'];
+    if (blogKeywords.some(kw => description.includes(kw))) {
+        basePrice += 150;
+        features.push('Blog/CMS features (+$150)');
+        detectedFeatures.push('Content management');
     }
 
-    // Custom integrations
-    if (description.includes('api') || description.includes('integration') ||
-        description.includes('third-party') || description.includes('custom') ||
-        description.includes('complex') || description.includes('advanced')) {
-        basePrice += 300;
-        features.push('Custom integrations (+$300)');
+    // API/Custom integrations
+    const apiKeywords = ['api', 'integration', 'third-party', 'webhook', 'external', 'connect', 'sync', 'automate'];
+    if (apiKeywords.some(kw => description.includes(kw))) {
+        basePrice += 250;
+        features.push('API integrations (+$250)');
+        detectedFeatures.push('Third-party integrations');
     }
 
     // Database complexity
-    if (description.includes('database') || description.includes('data') ||
-        description.includes('analytics') || description.includes('reporting')) {
+    const dbKeywords = ['database', 'data', 'analytics', 'reporting', 'dashboard', 'statistics', 'charts', 'graphs', 'metrics'];
+    if (dbKeywords.some(kw => description.includes(kw))) {
         basePrice += 200;
-        features.push('Advanced database features (+$200)');
+        features.push('Database & analytics (+$200)');
+        detectedFeatures.push('Data management');
     }
 
     // Authentication/User management
-    if (description.includes('login') || description.includes('auth') ||
-        description.includes('user') || description.includes('account') ||
-        description.includes('member')) {
+    const authKeywords = ['login', 'auth', 'user', 'account', 'member', 'register', 'signup', 'sign up', 'profile', 'password', 'session'];
+    if (authKeywords.some(kw => description.includes(kw))) {
         basePrice += 150;
         features.push('User authentication (+$150)');
+        detectedFeatures.push('User accounts & login');
+    }
+
+    // Admin panel/Dashboard
+    const adminKeywords = ['admin', 'dashboard', 'panel', 'manage', 'backend', 'control'];
+    if (adminKeywords.some(kw => description.includes(kw))) {
+        basePrice += 200;
+        features.push('Admin dashboard (+$200)');
+        detectedFeatures.push('Admin control panel');
+    }
+
+    // Booking/Scheduling
+    const bookingKeywords = ['booking', 'appointment', 'schedule', 'calendar', 'reservation', 'slots'];
+    if (bookingKeywords.some(kw => description.includes(kw))) {
+        basePrice += 250;
+        features.push('Booking system (+$250)');
+        detectedFeatures.push('Appointment scheduling');
+    }
+
+    // Multi-language
+    const langKeywords = ['multi-language', 'multilingual', 'translation', 'languages', 'localization', 'i18n'];
+    if (langKeywords.some(kw => description.includes(kw))) {
+        basePrice += 150;
+        features.push('Multi-language support (+$150)');
+        detectedFeatures.push('Multiple languages');
+    }
+
+    // SEO optimization
+    const seoKeywords = ['seo', 'search engine', 'google', 'ranking', 'optimization', 'meta'];
+    if (seoKeywords.some(kw => description.includes(kw))) {
+        basePrice += 100;
+        features.push('SEO optimization (+$100)');
+        detectedFeatures.push('Search engine optimization');
+    }
+
+    // Responsive/Mobile
+    const mobileKeywords = ['responsive', 'mobile', 'tablet', 'phone', 'adaptive'];
+    if (mobileKeywords.some(kw => description.includes(kw))) {
+        // Responsive is standard, but add note
+        detectedFeatures.push('Mobile responsive (included)');
+    }
+
+    // Real-time features
+    const realtimeKeywords = ['real-time', 'realtime', 'live', 'chat', 'notification', 'socket', 'websocket'];
+    if (realtimeKeywords.some(kw => description.includes(kw))) {
+        basePrice += 300;
+        features.push('Real-time features (+$300)');
+        detectedFeatures.push('Live updates/chat');
+    }
+
+    // Complexity keywords
+    const complexKeywords = ['complex', 'advanced', 'custom', 'unique', 'special', 'sophisticated'];
+    if (complexKeywords.some(kw => description.includes(kw))) {
+        basePrice += 150;
+        features.push('Custom complexity (+$150)');
+    }
+
+    // Page count estimation from description
+    const pageMatch = description.match(/(\d+)\s*(pages?|sections?)/i);
+    if (pageMatch) {
+        const pageCount = parseInt(pageMatch[1]);
+        if (pageCount > 5) {
+            const extraPages = pageCount - 5;
+            const pagesCost = extraPages * 30;
+            basePrice += pagesCost;
+            features.push(`${extraPages} additional pages (+$${pagesCost})`);
+        }
     }
 
     // Timeline adjustments
+    let timelineMultiplier = 1;
+    let timelineNote = '';
     if (data.timeline === 'rush') {
-        basePrice = Math.round(basePrice * 1.2); // 20% rush fee
-        features.push('Rush timeline (+20%)');
+        timelineMultiplier = 1.3; // 30% rush fee
+        timelineNote = 'Rush delivery (3-7 days): +30%';
+    } else if (data.timeline === 'standard') {
+        timelineMultiplier = 1.1; // 10% for faster delivery
+        timelineNote = 'Standard delivery (1-2 weeks): +10%';
+    } else {
+        timelineNote = 'Flexible timeline (2-4 weeks): Standard rate';
     }
 
-    // Project type bonuses
-    if (data.project_type === 'ecommerce') {
-        basePrice += 200;
-        features.push('Full e-commerce setup (+$200)');
-    } else if (data.project_type === 'webapp') {
-        basePrice += 300;
-        features.push('Web application complexity (+$300)');
+    basePrice = Math.round(basePrice * timelineMultiplier);
+    if (timelineMultiplier > 1) {
+        features.push(timelineNote);
     }
 
-    // Create price range
-    const minPrice = Math.max(500, basePrice - 200);
-    const maxPrice = basePrice + 300;
+    // Create price range (±15% for negotiation)
+    const minPrice = Math.max(250, Math.round(basePrice * 0.85));
+    const maxPrice = Math.round(basePrice * 1.15);
 
     // Convert prices to selected currency
     const convertToSelectedCurrency = (usd) => Math.round(usd * rate);
@@ -609,6 +768,9 @@ function calculateProjectPrice(data) {
         return symbols[currency] || currency;
     };
 
+    // Format number with commas
+    const formatNumber = (num) => num.toLocaleString();
+
     return {
         basePrice,
         minPrice,
@@ -619,60 +781,225 @@ function calculateProjectPrice(data) {
         currency: selectedCurrency,
         currencySymbol: getCurrencySymbol(selectedCurrency),
         exchangeRate: rate,
-        features: features.length > 0 ? features : ['Basic website features'],
-        timeline: data.timeline || 'standard'
+        features: features.length > 0 ? features : ['Basic website setup (+$300)'],
+        detectedFeatures: detectedFeatures,
+        timeline: data.timeline || 'flexible',
+        timelineNote: timelineNote,
+        projectType: data.project_type,
+        formatNumber
     };
 }
 
 async function sendPriceQuote(clientData, priceRange) {
-    // Initialize EmailJS
-    if (!window.emailjs) {
-        throw new Error('EmailJS not loaded');
-    }
+    // Web3Forms API key from config
+    const WEB3FORMS_KEY = CONFIG.email.web3formsKey;
 
-    // You'll need to set up EmailJS with your service ID, template ID, and public key
-    // For now, we'll use a placeholder - you need to configure this
-    const serviceId = 'your_service_id'; // Replace with your EmailJS service ID
-    const templateId = 'your_template_id'; // Replace with your EmailJS template ID
-    const publicKey = 'your_public_key'; // Replace with your EmailJS public key
+    // Format the price breakdown for the email
+    const priceBreakdown = priceRange.features.map(f => `  • ${f}`).join('\n');
+    const detectedFeatures = priceRange.detectedFeatures?.length > 0
+        ? priceRange.detectedFeatures.map(f => `  • ${f}`).join('\n')
+        : '  • Basic website features';
 
-    const templateParams = {
-        to_email: 'kevrith@gmail.com', // Your email to receive the quote
-        client_name: clientData.client_name,
-        client_email: clientData.client_email,
-        project_type: clientData.project_type,
-        project_description: clientData.project_description,
-        timeline: clientData.timeline,
-        budget_range: clientData.budget_range,
-        currency: priceRange.currency,
-        price_range_min: `${priceRange.currencySymbol}${priceRange.minPriceConverted}`,
-        price_range_max: `${priceRange.currencySymbol}${priceRange.maxPriceConverted}`,
-        base_price: `${priceRange.currencySymbol}${priceRange.basePriceConverted}`,
-        usd_equivalent: priceRange.currency !== 'USD' ? `USD: $${priceRange.minPrice} - $${priceRange.maxPrice}` : '',
-        exchange_rate: `1 USD = ${priceRange.exchangeRate.toFixed(4)} ${priceRange.currency}`,
-        features_list: priceRange.features.join(', '),
-        reply_to: clientData.client_email
+    // Get project type display name
+    const projectTypeNames = {
+        'business': 'Business Website',
+        'ecommerce': 'E-commerce Store',
+        'blog': 'Blog/CMS',
+        'portfolio': 'Portfolio Site',
+        'webapp': 'Web Application',
+        'other': 'Custom Project'
+    };
+
+    const projectTypeName = projectTypeNames[clientData.project_type] || 'Custom Project';
+
+    // Create detailed message for you (the developer)
+    const developerMessage = `
+🎯 NEW PROJECT QUOTE REQUEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 CLIENT INFORMATION
+   Name: ${clientData.client_name}
+   Email: ${clientData.client_email}
+
+📋 PROJECT DETAILS
+   Type: ${projectTypeName}
+   Timeline: ${priceRange.timelineNote}
+   Client Budget: ${clientData.budget_range || 'Not specified'}
+
+📝 PROJECT DESCRIPTION
+${clientData.project_description}
+
+💰 CALCULATED PRICE QUOTE
+━━━━━━━━━━━━━━━━━━━━━━━━━
+   Currency: ${priceRange.currency}
+   ${priceRange.currency !== 'USD' ? `Exchange Rate: 1 USD = ${priceRange.exchangeRate.toFixed(2)} ${priceRange.currency}\n` : ''}
+
+   💵 PRICE RANGE: ${priceRange.currencySymbol}${priceRange.minPriceConverted.toLocaleString()} - ${priceRange.currencySymbol}${priceRange.maxPriceConverted.toLocaleString()}
+   ${priceRange.currency !== 'USD' ? `   (USD: $${priceRange.minPrice.toLocaleString()} - $${priceRange.maxPrice.toLocaleString()})` : ''}
+
+   Base Price: ${priceRange.currencySymbol}${priceRange.basePriceConverted.toLocaleString()}
+
+📊 PRICE BREAKDOWN
+${priceBreakdown}
+
+🔍 DETECTED FEATURES
+${detectedFeatures}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Reply to: ${clientData.client_email}
+Submitted: ${new Date().toLocaleString()}
+    `.trim();
+
+    // Send email to developer (you)
+    const developerFormData = new FormData();
+    developerFormData.append('access_key', WEB3FORMS_KEY);
+    developerFormData.append('subject', `💼 New Quote Request: ${projectTypeName} from ${clientData.client_name}`);
+    developerFormData.append('from_name', 'Portfolio Quote System');
+    developerFormData.append('to_email', CONFIG.email.recipientEmail);
+    developerFormData.append('reply_to', clientData.client_email);
+    developerFormData.append('message', developerMessage);
+
+    // Also store the quote data for reference
+    const quoteData = {
+        timestamp: Date.now(),
+        client: clientData,
+        quote: priceRange,
+        message: developerMessage
     };
 
     try {
-        await emailjs.send(serviceId, templateId, templateParams, publicKey);
+        // Send to Web3Forms
+        const response = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: developerFormData
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || 'Failed to send email');
+        }
+
+        // Store quote locally for backup
+        saveQuoteLocally(quoteData);
+
+        // Show the quote to the user in a modal
+        showQuoteModal(clientData, priceRange);
+
+        return result;
     } catch (error) {
-        console.error('EmailJS error:', error);
+        console.error('Email sending error:', error);
+        // Still save locally even if email fails
+        saveQuoteLocally(quoteData);
         throw error;
     }
 }
 
-// ============================================
-// EMAILJS INITIALIZATION
-// ============================================
-function initEmailJS() {
-    if (window.emailjs) {
-        // Initialize EmailJS with your public key
-        // You'll need to replace this with your actual public key
-        emailjs.init('your_public_key'); // Replace with your EmailJS public key
-    } else {
-        console.warn('EmailJS not loaded');
+// Save quote to localStorage as backup
+function saveQuoteLocally(quoteData) {
+    try {
+        const quotes = JSON.parse(localStorage.getItem('quote_submissions') || '[]');
+        quotes.push(quoteData);
+        // Keep only last 50 quotes
+        if (quotes.length > 50) quotes.shift();
+        localStorage.setItem('quote_submissions', JSON.stringify(quotes));
+    } catch (e) {
+        console.warn('Failed to save quote locally:', e);
     }
+}
+
+// Show quote result modal to the user
+function showQuoteModal(clientData, priceRange) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('quote-modal');
+    if (existingModal) existingModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'quote-modal';
+    modal.innerHTML = `
+        <div class="modal-overlay" onclick="closeQuoteModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeQuoteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <i class="fas fa-check-circle"></i>
+                <h2>Quote Sent Successfully!</h2>
+            </div>
+            <div class="modal-body">
+                <p class="modal-greeting">Thank you, <strong>${clientData.client_name}</strong>!</p>
+                <p>Your project quote request has been submitted. Here's your estimated price range:</p>
+
+                <div class="quote-price-display">
+                    <span class="price-label">Estimated Price Range</span>
+                    <span class="price-value">${priceRange.currencySymbol}${priceRange.minPriceConverted.toLocaleString()} - ${priceRange.currencySymbol}${priceRange.maxPriceConverted.toLocaleString()}</span>
+                    ${priceRange.currency !== 'USD' ? `<span class="price-usd">(USD $${priceRange.minPrice.toLocaleString()} - $${priceRange.maxPrice.toLocaleString()})</span>` : ''}
+                </div>
+
+                <div class="quote-features">
+                    <h4>Price includes:</h4>
+                    <ul>
+                        ${priceRange.features.map(f => `<li><i class="fas fa-check"></i> ${f.replace(/\(\+\$[\d,]+\)/g, '')}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <p class="modal-note">
+                    <i class="fas fa-envelope"></i>
+                    I'll review your requirements and get back to you at <strong>${clientData.client_email}</strong> within 24-48 hours with a detailed proposal.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeQuoteModal()">
+                    <span class="btn-text">Got it!</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+
+    // Animate in
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
+}
+
+// Close quote modal
+function closeQuoteModal() {
+    const modal = document.getElementById('quote-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+// ============================================
+// WEB3FORMS CONFIGURATION
+// ============================================
+// To set up email functionality:
+// 1. Go to https://web3forms.com
+// 2. Enter your email (kevrith@gmail.com) and click "Create Access Key"
+// 3. Copy the access key and replace 'YOUR_WEB3FORMS_ACCESS_KEY' in CONFIG.email.web3formsKey
+// 4. That's it! No backend needed, emails will be sent directly to your inbox
+
+function initEmailService() {
+    // Check if Web3Forms key is configured
+    if (CONFIG.email.web3formsKey === 'YOUR_WEB3FORMS_ACCESS_KEY') {
+        console.warn('⚠️ Web3Forms not configured! Forms will not send emails.');
+        console.log('📧 To set up email:');
+        console.log('   1. Go to https://web3forms.com');
+        console.log('   2. Enter your email and get your access key');
+        console.log('   3. Replace YOUR_WEB3FORMS_ACCESS_KEY in scripts.js CONFIG');
+    } else {
+        console.log('📧 Email service ready (Web3Forms)');
+    }
+}
+
+// Check if email is configured before sending
+function isEmailConfigured() {
+    return CONFIG.email.web3formsKey && CONFIG.email.web3formsKey !== 'YOUR_WEB3FORMS_ACCESS_KEY';
 }
 
 // ============================================
@@ -1006,8 +1333,9 @@ function animateCounter(element, target) {
 async function fetchGitHubContributions() {
     const { username } = CONFIG.github;
     const cacheKey = 'github_contributions_cache';
+    const cacheDuration = 15 * 60 * 1000; // 15 minutes for fresher data
 
-    // Check cache first
+    // Check cache first (but with shorter duration for accuracy)
     const cached = getFromCache(cacheKey);
     if (cached) {
         renderContributionGraph(cached);
@@ -1015,24 +1343,78 @@ async function fetchGitHubContributions() {
     }
 
     try {
-        // Use GitHub's contribution calendar via a proxy service
-        // Since GitHub doesn't have a public API for contributions,
-        // we'll use the GitHub Skyline/contributions approach
-        const response = await fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`);
+        // Fetch from multiple sources for accuracy
+        const [jogruberResponse, githubEventsResponse] = await Promise.allSettled([
+            fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=last`),
+            fetch(`https://api.github.com/users/${username}/events/public?per_page=100`)
+        ]);
 
-        if (!response.ok) throw new Error('Failed to fetch contributions');
+        let contributionData = null;
 
-        const data = await response.json();
+        // Try primary API first
+        if (jogruberResponse.status === 'fulfilled' && jogruberResponse.value.ok) {
+            contributionData = await jogruberResponse.value.json();
+        }
 
-        // Cache for 1 hour
-        saveToCache(cacheKey, data, 60 * 60 * 1000);
+        // If we got data, enhance it with recent events count
+        if (contributionData) {
+            // Get additional contribution data from GitHub events
+            if (githubEventsResponse.status === 'fulfilled' && githubEventsResponse.value.ok) {
+                const events = await githubEventsResponse.value.json();
+                // Count push event commits for more accurate recent activity
+                let recentCommits = 0;
+                events.forEach(e => {
+                    if (e.type === 'PushEvent' && e.payload?.commits) {
+                        recentCommits += e.payload.commits.length;
+                    }
+                });
+                contributionData.recentCommits = recentCommits;
+            }
 
-        renderContributionGraph(data);
+            // Store the data with metadata
+            contributionData.fetchedAt = Date.now();
+            contributionData.isLive = true;
+
+            // Cache for 15 minutes
+            saveToCache(cacheKey, contributionData, cacheDuration);
+
+            renderContributionGraph(contributionData);
+        } else {
+            throw new Error('No contribution data available');
+        }
     } catch (error) {
-        console.warn('Failed to fetch contributions, generating mock data:', error);
+        console.warn('Failed to fetch contributions:', error);
         renderMockContributions();
     }
 }
+
+// Auto-refresh contributions every 15 minutes when page is visible
+function startContributionsAutoRefresh() {
+    const refreshInterval = 15 * 60 * 1000; // 15 minutes
+
+    setInterval(() => {
+        if (!document.hidden) {
+            // Clear cache to force refresh
+            localStorage.removeItem('github_contributions_cache');
+            fetchGitHubContributions();
+        }
+    }, refreshInterval);
+
+    // Also refresh when page becomes visible after being hidden
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            const cached = getFromCache('github_contributions_cache');
+            // Refresh if cache is older than 5 minutes
+            if (!cached || (Date.now() - cached.fetchedAt > 5 * 60 * 1000)) {
+                localStorage.removeItem('github_contributions_cache');
+                fetchGitHubContributions();
+            }
+        }
+    });
+}
+
+// Start auto-refresh on page load
+document.addEventListener('DOMContentLoaded', startContributionsAutoRefresh);
 
 function renderContributionGraph(data) {
     const container = document.getElementById('contribution-graph');
@@ -1041,12 +1423,22 @@ function renderContributionGraph(data) {
     // Clear loading state
     container.innerHTML = '';
 
-    // Calculate streaks and total
+    // Calculate streaks and total from actual contribution data
     const contributions = data.contributions || [];
     const flatContributions = contributions.flat();
 
-    // Use API's total if available, otherwise calculate
-    let totalContributions = data.total?.lastYear || data.total || 0;
+    // Calculate total from actual daily contributions (most accurate)
+    let totalContributions = 0;
+    flatContributions.forEach(day => {
+        totalContributions += day.count || 0;
+    });
+
+    // If API provides a total object, use that as reference but prefer calculated
+    // The API's total.lastYear sometimes differs from actual sum
+    if (data.total && typeof data.total === 'object' && data.total.lastYear) {
+        // Use calculated total as it reflects actual contributions in the data
+        console.log(`GitHub Contributions - Calculated: ${totalContributions}, API reported: ${data.total.lastYear}`);
+    }
 
     // Calculate stats
     let currentStreak = 0;
@@ -1061,15 +1453,12 @@ function renderContributionGraph(data) {
     let checkingCurrent = true;
 
     for (const day of sortedDays) {
-        // Only sum if we don't have API total
-        if (!data.total) {
-            totalContributions += day.count;
-        }
-
         if (checkingCurrent) {
+            // Allow for today having 0 contributions (day not over yet)
             if (day.count > 0) {
                 currentStreak++;
             } else if (day.date !== today) {
+                // Stop counting if we hit a zero that's not today
                 checkingCurrent = false;
             }
         }
@@ -1086,7 +1475,7 @@ function renderContributionGraph(data) {
         }
     }
 
-    // Update streak stats
+    // Update streak stats with actual calculated values
     updateStreakStats(currentStreak, longestStreak, totalContributions);
 
     // Render graph - get last 52 weeks
