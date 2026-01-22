@@ -893,75 +893,57 @@ body {
     animation: pulse-live 2s infinite;
 }
 
-/* GitHub Stats Cards */
-.github-stats-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+/* GitHub Stats Images */
+.github-stats-images {
+    display: flex;
+    justify-content: center;
     margin-bottom: 24px;
+    width: 100%;
 }
 
-.stats-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
+.github-stat-link {
+    display: block;
+    width: 100%;
+    transition: var(--transition);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.github-stat-link:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.github-stat-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+}
+
+.streak-img {
+    width: 100%;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
+    padding: 16px;
+}
+
+.activity-graph-img {
+    width: 100%;
     border-radius: var(--radius-md);
-    transition: var(--transition);
-}
-
-.stats-card:hover {
-    border-color: var(--accent-primary);
-    transform: translateY(-2px);
-}
-
-.stats-card-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: rgba(0, 255, 136, 0.1);
-    border-radius: var(--radius-md);
-    font-size: 1.25rem;
-    color: var(--accent-primary);
-}
-
-.stats-card:nth-child(2) .stats-card-icon {
-    background: rgba(255, 203, 107, 0.1);
-    color: #ffcb6b;
-}
-
-.stats-card:nth-child(3) .stats-card-icon {
-    background: rgba(0, 212, 255, 0.1);
-    color: var(--accent-secondary);
-}
-
-.stats-card-content {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.stats-card-value {
-    font-family: var(--font-mono);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.stats-card-label {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    border: 1px solid var(--border-color);
 }
 
 /* Contribution Graph */
 .contribution-graph-wrapper {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 12px;
+}
+
+.contribution-graph-wrapper .github-stat-link {
+    width: 100%;
 }
 
 .contribution-graph {
@@ -1071,8 +1053,21 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .github-stats-cards {
-        grid-template-columns: 1fr;
+    .github-stats-images {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .github-stat-img {
+        max-width: 100%;
+    }
+
+    .streak-img {
+        max-width: 100%;
+    }
+
+    .activity-graph-img {
+        max-width: 100%;
     }
 
     .activity-header {
@@ -1880,9 +1875,14 @@ body {
         --section-padding: 80px 0;
     }
 
+    /* Base font scaling for tablets/large phones */
+    html {
+        font-size: 17px;
+    }
+
     /* Navigation improvements */
     .navbar {
-        padding: 0 16px;
+        padding: 0 20px;
     }
 
     .nav-container {
@@ -1915,8 +1915,8 @@ body {
     }
 
     .nav-link {
-        padding: 16px 20px;
-        font-size: 1rem;
+        padding: 18px 24px;
+        font-size: 1.1rem;
         border-bottom: 1px solid var(--border-color);
     }
 
@@ -1928,38 +1928,66 @@ body {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
     }
 
+    /* Hero section improvements */
     .hero {
         padding-top: 100px;
+        padding-bottom: 60px;
+    }
+
+    .hero-badge {
+        font-size: 0.95rem;
+        padding: 10px 18px;
     }
 
     .hero-name {
-        font-size: clamp(2rem, 8vw, 3rem);
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+        line-height: 1.1;
     }
 
     .hero-title {
-        font-size: 0.9rem;
+        font-size: 1rem;
         justify-content: center;
+    }
+
+    .hero-description {
+        font-size: 1.15rem;
+        line-height: 1.7;
     }
 
     .hero-stats {
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.95rem;
     }
 
     .stat-divider {
         display: none;
     }
 
+    /* Section titles */
     .section-title {
         flex-wrap: wrap;
+        font-size: 1.8rem;
     }
 
     .title-line {
         display: none;
     }
 
+    /* Skills */
     .skill-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 12px;
@@ -1970,7 +1998,11 @@ body {
     }
 
     .skill-item i {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+    }
+
+    .skill-item span {
+        font-size: 0.9rem;
     }
 
     .floating-badges {
@@ -1983,6 +2015,33 @@ body {
 
     .contact-form-wrapper {
         padding: 24px;
+    }
+
+    /* GitHub Stats Images - Full Width */
+    .github-stats-images {
+        width: 100%;
+    }
+
+    .github-stat-img {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .streak-img {
+        max-width: 100%;
+        padding: 12px;
+    }
+
+    .activity-graph-img {
+        width: 100%;
+    }
+
+    .contribution-graph-wrapper {
+        width: 100%;
+    }
+
+    .contribution-graph-wrapper .github-stat-link {
+        width: 100%;
     }
 }
 
@@ -2029,26 +2088,34 @@ body {
 }
 
 @media (max-width: 480px) {
+    /* Base font scaling for small phones */
+    html {
+        font-size: 18px;
+    }
+
     .hero-cta {
         flex-direction: column;
         width: 100%;
+        gap: 16px;
     }
 
     .btn {
         width: 100%;
         justify-content: center;
+        padding: 18px 28px;
+        font-size: 1.1rem;
     }
 
     .code-window {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
     }
 
     .code-content {
-        padding: 16px;
+        padding: 20px;
     }
 
     .section-container {
-        padding: 100px 16px 60px;
+        padding: 100px 20px 60px;
     }
 
     /* Improved mobile navigation */
@@ -2057,34 +2124,54 @@ body {
     }
 
     .logo {
-        font-size: 1rem;
+        font-size: 1.15rem;
     }
 
-    /* Hero section mobile */
+    .logo .bracket {
+        font-size: 1.3rem;
+    }
+
+    /* Hero section mobile - LARGER FONTS */
     .hero {
         padding-top: 90px;
         padding-bottom: 60px;
     }
 
     .hero-badge {
-        font-size: 0.85rem;
-        padding: 6px 12px;
+        font-size: 1rem;
+        padding: 12px 20px;
+    }
+
+    .hero-name {
+        font-size: clamp(2.8rem, 12vw, 4rem);
+        margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.05rem;
+        gap: 12px;
     }
 
     .hero-description {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        line-height: 1.8;
     }
 
     .hero-stats {
-        padding: 16px 0;
+        padding: 24px 0;
+        gap: 24px;
     }
 
     .stat-number {
-        font-size: 1.8rem;
+        font-size: 2.4rem;
     }
 
     .stat-label {
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
 
     /* Code window mobile */
@@ -2093,49 +2180,86 @@ body {
     }
 
     .code-content code {
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         white-space: pre-wrap;
         word-break: break-word;
+        line-height: 1.6;
     }
 
-    /* About section mobile */
+    /* Scroll indicator */
+    .scroll-indicator {
+        font-size: 1rem;
+    }
+
+    .scroll-indicator span {
+        font-size: 0.95rem;
+    }
+
+    /* Section titles - LARGER */
+    .section-title {
+        margin-bottom: 40px;
+    }
+
+    .section-number {
+        font-size: 1.3rem;
+    }
+
+    .title-text {
+        font-size: 1.8rem;
+    }
+
+    /* About section mobile - LARGER FONTS */
     .about-terminal .terminal-body {
-        padding: 12px;
-        font-size: 0.9rem;
+        padding: 16px;
+        font-size: 1rem;
+    }
+
+    .about-text p {
+        font-size: 1.1rem;
+        line-height: 1.8;
     }
 
     .achievements-list {
         padding-left: 0;
     }
 
-    .image-frame {
-        width: 200px;
-        height: 240px;
+    .achievements-list li {
+        font-size: 1rem;
+        padding: 8px 0;
     }
 
-    /* Skills mobile */
+    .image-frame {
+        width: 220px;
+        height: 260px;
+    }
+
+    /* Skills mobile - LARGER */
     .skill-category {
-        padding: 16px;
+        padding: 20px;
+    }
+
+    .category-header h3 {
+        font-size: 1.2rem;
     }
 
     .skill-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
+        gap: 10px;
     }
 
     .skill-item {
-        padding: 12px 8px;
+        padding: 16px 10px;
     }
 
     .skill-item i {
-        font-size: 1.25rem;
+        font-size: 1.6rem;
     }
 
     .skill-item span {
-        font-size: 0.7rem;
+        font-size: 0.85rem;
     }
 
-    /* Projects mobile */
+    /* Projects mobile - LARGER */
     .projects-grid {
         gap: 50px;
     }
@@ -2145,88 +2269,114 @@ body {
     }
 
     .project-title {
-        font-size: 1.4rem;
+        font-size: 1.6rem;
     }
 
     .project-description {
-        padding: 16px;
-        font-size: 1rem;
+        padding: 20px;
+        font-size: 1.1rem;
+        line-height: 1.7;
     }
 
     .project-tech-list {
-        gap: 8px;
+        gap: 10px;
     }
 
     .project-tech-list li {
-        font-size: 0.75rem;
-        padding: 3px 8px;
+        font-size: 0.9rem;
+        padding: 6px 12px;
     }
 
-    /* Contact/Charge sheet mobile */
+    /* Contact/Charge sheet mobile - LARGER */
     .contact-json {
-        font-size: 0.8rem;
-        padding-left: 10px;
+        font-size: 0.95rem;
+        padding-left: 12px;
     }
 
     .pricing-features {
-        padding: 16px;
+        padding: 20px;
     }
 
     .pricing-features h3 {
-        font-size: 0.95rem;
+        font-size: 1.1rem;
     }
 
     .pricing-features li {
-        font-size: 0.85rem;
+        font-size: 1rem;
+        padding: 6px 0;
     }
 
     .form-label {
-        font-size: 0.85rem;
+        font-size: 1rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        font-size: 1rem;
+        padding: 16px 18px;
     }
 
     .form-note {
-        font-size: 0.8rem;
-        padding: 10px 12px;
+        font-size: 0.95rem;
+        padding: 14px 16px;
     }
 
-    /* Footer mobile */
+    .btn-submit {
+        font-size: 1.1rem;
+        padding: 18px 28px;
+    }
+
+    /* Footer mobile - LARGER */
     .footer {
-        padding: 40px 16px;
+        padding: 50px 20px;
     }
 
     .footer-text {
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
 
     .footer-copyright {
-        font-size: 0.8rem;
+        font-size: 0.95rem;
         flex-wrap: wrap;
         justify-content: center;
     }
 
-    /* GitHub activity mobile */
-    .github-activity {
-        padding: 16px;
-        margin-top: 40px;
-    }
-
-    .stats-card {
-        padding: 14px;
-        gap: 12px;
-    }
-
-    .stats-card-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-
-    .stats-card-value {
+    .footer-social .social-link {
+        width: 52px;
+        height: 52px;
         font-size: 1.3rem;
     }
 
-    .stats-card-label {
-        font-size: 0.75rem;
+    /* GitHub activity mobile - FULL WIDTH */
+    .github-activity {
+        padding: 20px;
+        margin-top: 40px;
+    }
+
+    .activity-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .live-badge {
+        font-size: 0.9rem;
+    }
+
+    .github-stats-images {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .github-stat-img,
+    .streak-img,
+    .activity-graph-img {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .contribution-graph-wrapper {
+        width: 100%;
+        overflow-x: auto;
     }
 
     /* Notification mobile */
@@ -2234,6 +2384,38 @@ body {
         right: 10px !important;
         left: 10px !important;
         max-width: none !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* Extra small phones (360px and below) */
+@media (max-width: 360px) {
+    html {
+        font-size: 16px;
+    }
+
+    .hero-name {
+        font-size: 2.2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+    }
+
+    .hero-description {
+        font-size: 1.05rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .skill-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .section-container {
+        padding: 80px 16px 50px;
     }
 }
 

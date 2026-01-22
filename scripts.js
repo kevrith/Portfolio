@@ -1397,9 +1397,9 @@ async function fetchGitHubContributions() {
     }
 }
 
-// Auto-refresh contributions every 15 minutes when page is visible
+// Auto-refresh contributions every 5 minutes when page is visible
 function startContributionsAutoRefresh() {
-    const refreshInterval = 15 * 60 * 1000; // 15 minutes
+    const refreshInterval = 5 * 60 * 1000; // 5 minutes
 
     setInterval(() => {
         if (!document.hidden) {
@@ -1413,8 +1413,8 @@ function startContributionsAutoRefresh() {
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
             const cached = getFromCache('github_contributions_cache');
-            // Refresh if cache is older than 5 minutes
-            if (!cached || (Date.now() - cached.fetchedAt > 5 * 60 * 1000)) {
+            // Refresh if cache is older than 2 minutes
+            if (!cached || (Date.now() - cached.fetchedAt > 2 * 60 * 1000)) {
                 localStorage.removeItem('github_contributions_cache');
                 fetchGitHubContributions();
             }
