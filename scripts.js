@@ -542,11 +542,86 @@ Sent from your portfolio website
 }
 
 // ============================================
+// CURRENCY CHANGE HANDLER
+// ============================================
+function initCurrencyChange() {
+    const currencySelect = document.getElementById('currency');
+    const budgetSelect = document.getElementById('budget-range');
+
+    if (!currencySelect || !budgetSelect) return;
+
+    // Define budget ranges in USD (base currency)
+    const budgetRangesUSD = [
+        { value: 'under-500', label: 'Under $500' },
+        { value: '500-1000', label: '$500 - $1,000' },
+        { value: '1000-2000', label: '$1,000 - $2,000' },
+        { value: '2000-5000', label: '$2,000 - $5,000' },
+        { value: '5000-plus', label: '$5,000+' }
+    ];
+
+    // Currency symbols
+    const currencySymbols = {
+        USD: '$',
+        EUR: '€',
+        KES: 'KSh',
+        GBP: '£',
+        CAD: 'C$',
+        AUD: 'A$',
+        JPY: '¥',
+        CHF: 'CHF'
+    };
+
+    function updateBudgetOptions() {
+        const selectedCurrency = currencySelect.value;
+        const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
+        const rate = exchangeRates[selectedCurrency] || 1;
+
+        // Clear existing options except the first one
+        while (budgetSelect.options.length > 1) {
+            budgetSelect.remove(1);
+        }
+
+        // Add updated options
+        budgetRangesUSD.forEach(range => {
+            const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
+            if (!usdValues) return;
+
+            const minUSD = parseInt(usdValues[1].replace(/,/g, ''));
+            const maxUSD = usdValues[2] ? parseInt(usdValues[2].replace(/,/g, '')) : null;
+
+            // Convert to selected currency
+            const minConverted = Math.round(minUSD * rate);
+            const maxConverted = maxUSD ? Math.round(maxUSD * rate) : null;
+
+            // Format the label
+            let label;
+            if (maxConverted) {
+                label = `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
+            } else {
+                label = `${symbol}${minConverted.toLocaleString()}+`;
+            }
+
+            const option = new Option(label, range.value);
+            budgetSelect.add(option);
+        });
+    }
+
+    // Update on currency change
+    currencySelect.addEventListener('change', updateBudgetOptions);
+
+    // Initial update (in case currency is pre-selected)
+    updateBudgetOptions();
+}
+
+// ============================================
 // CHARGE SHEET FORM
 // ============================================
 function initChargeSheetForm() {
     const form = elements.chargeSheetForm;
     if (!form) return;
+
+    // Initialize currency-dependent elements
+    initCurrencyChange();
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

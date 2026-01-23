@@ -1159,8 +1159,8 @@ body {
 }
 
 .image-frame:hover .image-border {
-    top: 12px;
-    left: 12px;
+    top: 0;
+    left: 0;
 }
 
 /* Floating Badges */
