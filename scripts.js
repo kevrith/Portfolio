@@ -562,22 +562,36 @@ function updateBudgetOptions() {
 
     // Add updated budget options
     budgetRangesUSD.forEach(range => {
-        const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
-        if (!usdValues) return;
-
-        const minUSD = parseInt(usdValues[1].replace(/,/g, ''));
-        const maxUSD = usdValues[2] ? parseInt(usdValues[2].replace(/,/g, '')) : null;
-
-        // Convert to selected currency
-        const minConverted = Math.round(minUSD * rate);
-        const maxConverted = maxUSD ? Math.round(maxUSD * rate) : null;
-
-        // Format the label
         let label;
-        if (maxConverted) {
-            label = `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
+
+        if (range.value === 'under-500') {
+            // Special case for "Below $500"
+            const usdValue = 500;
+            const convertedValue = Math.round(usdValue * rate);
+            label = `Below ${symbol}${convertedValue}`;
+        } else if (range.value === '5000-plus') {
+            // Special case for "$5,000+"
+            const usdValue = 5000;
+            const convertedValue = Math.round(usdValue * rate);
+            label = `${symbol}${convertedValue.toLocaleString()}+`;
         } else {
-            label = `${symbol}${minConverted.toLocaleString()}+`;
+            // Regular range parsing for "$500 - $1,000", etc.
+            const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
+            if (!usdValues) return;
+
+            const minUSD = parseInt(usdValues[1].replace(/,/g, ''));
+            const maxUSD = usdValues[2] ? parseInt(usdValues[2].replace(/,/g, '')) : null;
+
+            // Convert to selected currency
+            const minConverted = Math.round(minUSD * rate);
+            const maxConverted = maxUSD ? Math.round(maxUSD * rate) : null;
+
+            // Format the label
+            if (maxConverted) {
+                label = `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
+            } else {
+                label = `${symbol}${minConverted.toLocaleString()}+`;
+            }
         }
 
         const option = new Option(label, range.value);
