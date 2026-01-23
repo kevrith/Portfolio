@@ -545,7 +545,7 @@ Sent from your portfolio website
 // CURRENCY CHANGE HANDLER
 // ============================================
 // Global variables for currency handling
-let currencySelect, budgetSelect, budgetRangesUSD, currencySymbols;
+let currencySelect, budgetSelect, projectTypeSelect, budgetRangesUSD, projectTypesUSD, currencySymbols;
 
 function updateBudgetOptions() {
     if (!currencySelect || !budgetSelect) return;
@@ -554,12 +554,13 @@ function updateBudgetOptions() {
     const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
     const rate = exchangeRates[selectedCurrency] || 1;
 
+    // Update budget range options
     // Clear existing options except the first one
     while (budgetSelect.options.length > 1) {
         budgetSelect.remove(1);
     }
 
-    // Add updated options
+    // Add updated budget options
     budgetRangesUSD.forEach(range => {
         const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
         if (!usdValues) return;
@@ -582,21 +583,50 @@ function updateBudgetOptions() {
         const option = new Option(label, range.value);
         budgetSelect.add(option);
     });
+
+    // Update project type options
+    if (projectTypeSelect) {
+        // Clear existing options except the first one
+        while (projectTypeSelect.options.length > 1) {
+            projectTypeSelect.remove(1);
+        }
+
+        // Add updated project type options
+        projectTypesUSD.forEach(type => {
+            const usdPrice = type.price;
+            const convertedPrice = Math.round(usdPrice * rate);
+            const label = `${type.name} (${symbol}${convertedPrice}+)`;
+
+            const option = new Option(label, type.value);
+            projectTypeSelect.add(option);
+        });
+    }
 }
 
 function initCurrencyChange() {
     currencySelect = document.getElementById('currency');
     budgetSelect = document.getElementById('budget-range');
+    projectTypeSelect = document.getElementById('project-type');
 
     if (!currencySelect || !budgetSelect) return;
 
     // Define budget ranges in USD (base currency)
     budgetRangesUSD = [
-        { value: 'under-500', label: 'Under $500' },
+        { value: 'under-500', label: 'Below $500' },
         { value: '500-1000', label: '$500 - $1,000' },
         { value: '1000-2000', label: '$1,000 - $2,000' },
         { value: '2000-5000', label: '$2,000 - $5,000' },
         { value: '5000-plus', label: '$5,000+' }
+    ];
+
+    // Define project types in USD (base currency)
+    projectTypesUSD = [
+        { value: 'portfolio', name: 'Portfolio Site', price: 300 },
+        { value: 'business', name: 'Business Website', price: 400 },
+        { value: 'blog', name: 'Blog/CMS', price: 350 },
+        { value: 'ecommerce', name: 'E-commerce Store', price: 800 },
+        { value: 'webapp', name: 'Web Application', price: 700 },
+        { value: 'other', name: 'Other (Custom Quote)', price: 400 }
     ];
 
     // Currency symbols
