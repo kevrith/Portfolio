@@ -544,14 +544,54 @@ Sent from your portfolio website
 // ============================================
 // CURRENCY CHANGE HANDLER
 // ============================================
+// Global variables for currency handling
+let currencySelect, budgetSelect, budgetRangesUSD, currencySymbols;
+
+function updateBudgetOptions() {
+    if (!currencySelect || !budgetSelect) return;
+
+    const selectedCurrency = currencySelect.value;
+    const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
+    const rate = exchangeRates[selectedCurrency] || 1;
+
+    // Clear existing options except the first one
+    while (budgetSelect.options.length > 1) {
+        budgetSelect.remove(1);
+    }
+
+    // Add updated options
+    budgetRangesUSD.forEach(range => {
+        const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
+        if (!usdValues) return;
+
+        const minUSD = parseInt(usdValues[1].replace(/,/g, ''));
+        const maxUSD = usdValues[2] ? parseInt(usdValues[2].replace(/,/g, '')) : null;
+
+        // Convert to selected currency
+        const minConverted = Math.round(minUSD * rate);
+        const maxConverted = maxUSD ? Math.round(maxUSD * rate) : null;
+
+        // Format the label
+        let label;
+        if (maxConverted) {
+            label = `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
+        } else {
+            label = `${symbol}${minConverted.toLocaleString()}+`;
+        }
+
+        const option = new Option(label, range.value);
+        budgetSelect.add(option);
+    });
+}
+
 function initCurrencyChange() {
-    const currencySelect = document.getElementById('currency');
-    const budgetSelect = document.getElementById('budget-range');
+    currencySelect = document.getElementById('currency');
+    budgetSelect = document.getElementById('budget-range');
 
     if (!currencySelect || !budgetSelect) return;
 
     // Define budget ranges in USD (base currency)
-    const budgetRangesUSD = [
+    budgetRangesUSD = [
         { value: 'under-500', label: 'Under $500' },
         { value: '500-1000', label: '$500 - $1,000' },
         { value: '1000-2000', label: '$1,000 - $2,000' },
@@ -560,7 +600,7 @@ function initCurrencyChange() {
     ];
 
     // Currency symbols
-    const currencySymbols = {
+    currencySymbols = {
         USD: '$',
         EUR: '€',
         KES: 'KSh',
@@ -571,45 +611,10 @@ function initCurrencyChange() {
         CHF: 'CHF'
     };
 
-    function updateBudgetOptions() {
-        const selectedCurrency = currencySelect.value;
-        const symbol = currencySymbols[selectedCurrency] || selectedCurrency;
-        const rate = exchangeRates[selectedCurrency] || 1;
-
-        // Clear existing options except the first one
-        while (budgetSelect.options.length > 1) {
-            budgetSelect.remove(1);
-        }
-
-        // Add updated options
-        budgetRangesUSD.forEach(range => {
-            const usdValues = range.label.match(/\$([\d,]+)(?:\s*-\s*\$([\d,]+))?/);
-            if (!usdValues) return;
-
-            const minUSD = parseInt(usdValues[1].replace(/,/g, ''));
-            const maxUSD = usdValues[2] ? parseInt(usdValues[2].replace(/,/g, '')) : null;
-
-            // Convert to selected currency
-            const minConverted = Math.round(minUSD * rate);
-            const maxConverted = maxUSD ? Math.round(maxUSD * rate) : null;
-
-            // Format the label
-            let label;
-            if (maxConverted) {
-                label = `${symbol}${minConverted.toLocaleString()} - ${symbol}${maxConverted.toLocaleString()}`;
-            } else {
-                label = `${symbol}${minConverted.toLocaleString()}+`;
-            }
-
-            const option = new Option(label, range.value);
-            budgetSelect.add(option);
-        });
-    }
-
     // Update on currency change
     currencySelect.addEventListener('change', updateBudgetOptions);
 
-    // Initial update (in case currency is pre-selected)
+    // Initial update (in case currency is pre-selected) - will update after rates load
     updateBudgetOptions();
 }
 
@@ -1808,6 +1813,8 @@ async function fetchExchangeRate() {
     const cached = getFromCache(cacheKey);
     if (cached) {
         exchangeRates = cached;
+        // Update budget options with cached rates
+        updateBudgetOptions();
         return;
     }
 
@@ -1848,6 +1855,9 @@ async function fetchExchangeRate() {
             CHF: 0.90
         };
     }
+
+    // Update budget options with new rates
+    updateBudgetOptions();
 }
 
 // ============================================
